@@ -1,0 +1,17 @@
+name: ntp
+subordinate: true
+summary: Network Time Protocol
+description: |
+  NTP, the Network Time Protocol, is used to keep computer clocks accurate
+  by synchronizing them over the Internet or a local network, or by
+  following an accurate hardware receiver that interprets GPS, DCF-77,
+  NIST or similar time signals.
+  .
+  This charm can be deployed alongside principle charms to enable NTP
+  management across deployed services.
+requires:
+  juju-info:
+    interface: juju-info
+    scope: container
+  master:
+    interface: ntp

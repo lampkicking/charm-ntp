@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+units=$(relation-list)
+
+if [ -n "$units" ]
+then
+    cat > /etc/ntp.conf << EOF
+# juju generated ntp configuration
+driftfile /var/lib/ntp/ntp.drift
+statistics loopstats peerstats clockstats
+filegen loopstats file loopstats type day enable
+filegen peerstats file peerstats type day enable
+filegen clockstats file clockstats type day enable
+restrict -4 default kod notrap nomodify nopeer noquery
+restrict -6 default kod notrap nomodify nopeer noquery
+restrict 127.0.0.1
+restrict ::1
+EOF
+    for unit in $units
+    do
+        echo "server $(relation-get private-address $unit)" >> /etc/ntp.conf
+    done
+else
+    # Restore backup of installed file
+    cp /etc/ntp.conf.orig /etc/ntp.conf
+fi
+
+service ntp restart || true
+
