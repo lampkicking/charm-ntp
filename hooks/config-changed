@@ -20,7 +20,7 @@ restrict ::1
 EOF
     for host in $source
     do
-        echo "server $host" >> /etc/ntp.conf
+        echo "server $host iburst" >> /etc/ntp.conf
     done
 else
     # Restore backup of installed file
