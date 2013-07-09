@@ -59,9 +59,7 @@ def write_config():
     if "source" in config.keys():
         source=config['source']
     else:
-        hookenv.log("No source defined, using the vanilla /etc/ntp.conf file")
-        shutil.copy("/etc/ntp.conf.orig","/etc/ntp.conf")
-        return 
+        source=''
 
     ntpconf="# juju generated ntp configuration\n"
     ntpconf+="driftfile /var/lib/ntp/ntp.drift\n"
@@ -75,54 +73,48 @@ def write_config():
     ntpconf+="restrict ::1\n"
     ntpconf+="# SERVERS\n"
 
-    if not len(source):
-        hookenv.log("No source set, restoring original ntp.conf")
-        shutil.copy("/etc/ntp.conf.orig","/etc/ntp.conf")
-        return
-    else:
-        hookenv.log("This is a regular server with existing sources")
-        sources=source.split(",")
-        for s in sources:
-            hookenv.log("Adding source '%s'"%s)
-            ntpconf+="server %s \n"%s
+    sources=source.split(",")
+    for s in sources:
+        hookenv.log("Adding source '%s'"%s)
+        ntpconf+="server %s \n"%s
             
-        hookenv.log("Now let s mention our local master")
-        masters=get_data_from_pickle(servers_pickle_file)
-        for s in masters:
-            ntpconf+="server "+s+" iburst\n"
-
+    hookenv.log("Now let s mention our local master")
+    masters=get_data_from_pickle(servers_pickle_file)
+    for s in masters:
+        hookenv.log("Adding %s in pickle"%s)
+        ntpconf+="server "+s+" iburst\n"
 
     host.write_file("/etc/ntp.conf",ntpconf)
 
-    
+    hookenv.log("Writing ntp.cofng is done")
+
 @hooks.hook('config-changed')
 def config_changed():
     hookenv.log("config changed")
+
+
+    """
     config=hookenv.config()
-
-
     if hookenv.in_relation_hook():
         hookenv.log("SO WE ARE IN A RELATION HOOK")
         hookenv.log("COIN relation=%s"%hookenv.relation_get())
     else:
         hookenv.log("WE ARE NOT IN A RELATION HOOK")
-
+      
     hookenv.log("this is unit %s "%hookenv.local_unit())
+    """
 
+    """
     for rel in hookenv.relation_ids('peer'):
         hookenv.log("Let s check relation %s"%rel)
         related_unit=hookenv.related_units(rel)
         for u in related_unit:
             hookenv.log("related=%s"%u)
 
+    """
+
     host.service('stop',"ntp")
-    if "source" in config.keys():
-        source=config['source']
-        hookenv.log("source=%s"%source)
-        write_config()
-    else:
-        hookenv.log("No source set, putting back the default /etc/ntp.conf file")
-        shutil.copy("/etc/ntp.conf.orig","/etc/ntp.conf")
+    write_config()
     host.service('start',"ntp")
 
 
