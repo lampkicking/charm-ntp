@@ -74,6 +74,7 @@ def config_changed():
         hookenv.log("WE ARE NOT IN A RELATION HOOK")
 
     hookenv.log("this is unit %s "%hookenv.local_unit())
+
     for rel in hookenv.relation_ids('peer'):
         hookenv.log("Let s check relation %s"%rel)
         related_unit=hookenv.related_units(rel)
@@ -89,6 +90,19 @@ def config_changed():
         hookenv.log("No source set, putting back the default /etc/ntp.conf file")
         shutil.copy("/etc/ntp.conf.orig","/etc/ntp.conf")
     host.service('start',"ntp")
+
+
+@hooks.hook('master-relation-joined')
+def master_relation_joined():
+    hookenv.log("master-relation-joined")
+
+@hooks.hook('master-relation-changed')
+def master_relation_changed():
+    hookenv.log("master-relation-changed")
+
+@hooks.hook('master-relation-departed')
+def master_relation_departed():
+    hookenv.log("master-relation-departed")
 
 
 
