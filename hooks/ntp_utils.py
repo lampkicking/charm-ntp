@@ -13,6 +13,32 @@ import os
 import shutil
 import subprocess
 import json
+import pickle
+
+"""
+This charm needs to maintain a set of exisitng master ntp unit
+as each one needs to be in a server line in the /etc/ntp.conf file
+Let s store this set in a pickle.
+"""
+
+def get_data_to_pickle(data,filename):
+    hookenv.log("Saving data to file:%s"%data)
+    output=open(filename, 'wb')
+    pickle.dump(data,output)    
+    output.close()
+
+def get_data_from_pickle(filename):
+    if not os.path.exists(filename):
+        get_data_to_pickle(set(),filename)
+
+    data=open(filename, 'rb')
+    out=pickle.load(data)
+    data.close()
+    return out
+
+servers_pickle_file="/tmp/servers_pickle.bin"
+servers_pickle_lock="/tmp/servers_pickle.lock"
+
 
 hooks = hookenv.Hooks()
 
@@ -22,6 +48,8 @@ def install():
     host.apt_update(fatal=True)
     host.apt_install(["ntp"], fatal=True)
     shutil.copy("/etc/ntp.conf", "/etc/ntp.conf.orig")
+    if not os.path.exists(servers_pickle_file):
+        get_data_to_pickle(set(),servers_pickle_file)
 
 
 def write_config():
@@ -57,6 +85,12 @@ def write_config():
         for s in sources:
             hookenv.log("Adding source '%s'"%s)
             ntpconf+="server %s \n"%s
+            
+        hookenv.log("Now let s mention our local master")
+        masters=get_data_from_pickle(servers_pickle_file)
+        for s in masters:
+            ntpconf+="server "+s+" iburst\n"
+
 
     host.write_file("/etc/ntp.conf",ntpconf)
 
@@ -95,14 +129,49 @@ def config_changed():
 @hooks.hook('master-relation-joined')
 def master_relation_joined():
     hookenv.log("master-relation-joined")
+    master_addr=hookenv.relation_get("private-address")
+    hookenv.log("PLOP: we need to add the master ip %s"%master_addr)
+    while os.path.exists(servers_pickle_lock):
+        hookenv.log("Some other process try to access the pickle jar. Let s wait a bit.)")
+        time.sleep(1)
+
+    fl = os.open( servers_pickle_lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
+
+    masters=get_data_from_pickle(servers_pickle_file)
+    hookenv.log("PLOP data from disk is %s"%masters)
+    masters.add(master_addr)
+    get_data_to_pickle(masters,servers_pickle_file)
+
+    os.close(fl)
+    os.remove(servers_pickle_lock)
+
+    config_changed()
+
 
 @hooks.hook('master-relation-changed')
 def master_relation_changed():
-    hookenv.log("master-relation-changed")
+    hookenv.log("master-relation-changed doing nothing.")
 
 @hooks.hook('master-relation-departed')
 def master_relation_departed():
     hookenv.log("master-relation-departed")
+    master_addr=hookenv.relation_get("private-address")
+    hookenv.log("PLOP: we need to remove the master ip %s"%master_addr)
+    while os.path.exists(servers_pickle_lock):
+        hookenv.log("Some other process try to access the pickle jar. Let s wait a bit.)")
+        time.sleep(1)
+
+    fl = os.open( servers_pickle_lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
+
+    masters=get_data_from_pickle(servers_pickle_file)
+    hookenv.log("PLOP data from disk is %s"%masters)
+    masters.remove(master_addr)
+    get_data_to_pickle(masters,servers_pickle_file)
+
+    os.close(fl)
+    os.remove(servers_pickle_lock)
+
+    config_changed()
 
 
 
