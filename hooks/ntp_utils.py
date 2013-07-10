@@ -1,10 +1,4 @@
 #!/usr/bin/python
-"""
-After branching the charm, get the needed libs:
-cd ntpmaster
-~/bin/charm_helpers_sync.py -c charm-helpers-sync.yaml 
-
-"""
 import sys
 import charmhelpers.core.hookenv as hookenv
 import charmhelpers.core.host as host
@@ -18,7 +12,6 @@ hooks = hookenv.Hooks()
 
 @hooks.hook('install')
 def install():
-    hookenv.log("installing ntp")
     host.apt_update(fatal=True)
     host.apt_install(["ntp"], fatal=True)
     shutil.copy("/etc/ntp.conf", "/etc/ntp.conf.orig")
@@ -26,8 +19,6 @@ def install():
 
 def write_config():
     config=hookenv.config()
-
-    hookenv.log("writing ntp.conf for %s."%config)
     if "source" in config.keys():
         source=config['source']
     else:
@@ -49,41 +40,24 @@ def write_config():
     for s in sources:
         if not len(s):
             continue
-        hookenv.log("Adding source '%s'"%s)
         ntpconf+="server %s \n"%s
             
     ntpconf+="# The following servers are ntpmaster units \n"
-    hookenv.log("Now let s mention our local masters")
 
-    master_exist=False
     relations=hookenv.relations()
-    hookenv.log("relations=%s"%relations)
+
     if 'master' in relations.keys() and len(relations['master'].keys()):
-        hookenv.log("Master exist")
-        master_exist=True
-    else:
-        hookenv.log("Master does not exist")
-
-
-    if master_exist:
-
         for rel in hookenv.relation_ids('master'):
             hookenv.log("Let s check relation %s"%rel)
             related_unit=hookenv.related_units(rel)
             for u in related_unit:
-                hookenv.log("related=%s"%u)
                 u_addr=hookenv.relation_get(attribute='private-address', unit=u, rid=rel)
-                hookenv.log("unit addr= = %s"% u_addr)
                 ntpconf+="server %s iburst \n"%u_addr
-
 
     host.write_file("/etc/ntp.conf",ntpconf)
 
-    hookenv.log("Writing ntp.cofng is done")
-
 @hooks.hook('config-changed')
 def config_changed():
-    hookenv.log("config changed")
     host.service('stop',"ntp")
     write_config()
     host.service('start',"ntp")
@@ -91,21 +65,16 @@ def config_changed():
 
 @hooks.hook('master-relation-joined')
 def master_relation_joined():
-    hookenv.log("master-relation-joined")
-    master_addr=hookenv.relation_get("private-address")
-    hookenv.log("PLOP: we need to add the master ip %s"%master_addr)
     config_changed()
 
 
 @hooks.hook('master-relation-changed')
 def master_relation_changed():
-    hookenv.log("master-relation-changed doing nothing.")
+    return
 
 @hooks.hook('master-relation-departed')
 def master_relation_departed():
-    hookenv.log("master-relation-departed")
     master_addr=hookenv.relation_get("private-address")
-    hookenv.log("PLOP: we need to remove the master ip %s"%master_addr)
     config_changed()
 
 if __name__ == '__main__':
