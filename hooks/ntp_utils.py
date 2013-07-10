@@ -47,22 +47,35 @@ def write_config():
 
     sources=source.split(",")
     for s in sources:
+        if not len(s):
+            continue
         hookenv.log("Adding source '%s'"%s)
         ntpconf+="server %s \n"%s
             
     ntpconf+="# The following servers are ntpmaster units \n"
     hookenv.log("Now let s mention our local masters")
 
-    """
-    for rel in hookenv.relation_ids('master'):
-        hookenv.log("Let s check relation %s"%rel)
-        related_unit=hookenv.related_units(rel)
-        for u in related_unit:
-            hookenv.log("related=%s"%u)
-            u_addr=hookenv.relation_get(attribute='private-address', unit=u, rid=rel)
-            hookenv.log("unit addr= = %s"% u_addr)
-            ntpconf+="server %s iburst \n"%u_addr
-    """
+    master_exist=False
+    relations=hookenv.relations()
+    hookenv.log("relation=%s"%relations)
+    if 'master' not in relations.keys() and len(relations['master'].keys()):
+        hookenv.log("Master exist")
+        master_exist_exist=True
+    else:
+        hookenv.log("Master does not exist")
+
+
+    if master_exist:
+
+        for rel in hookenv.relation_ids('master'):
+            hookenv.log("Let s check relation %s"%rel)
+            related_unit=hookenv.related_units(rel)
+            for u in related_unit:
+                hookenv.log("related=%s"%u)
+                u_addr=hookenv.relation_get(attribute='private-address', unit=u, rid=rel)
+                hookenv.log("unit addr= = %s"% u_addr)
+                ntpconf+="server %s iburst \n"%u_addr
+
 
     host.write_file("/etc/ntp.conf",ntpconf)
 
@@ -71,28 +84,6 @@ def write_config():
 @hooks.hook('config-changed')
 def config_changed():
     hookenv.log("config changed")
-
-
-    """
-    config=hookenv.config()
-    if hookenv.in_relation_hook():
-        hookenv.log("SO WE ARE IN A RELATION HOOK")
-        hookenv.log("COIN relation=%s"%hookenv.relation_get())
-    else:
-        hookenv.log("WE ARE NOT IN A RELATION HOOK")
-      
-    hookenv.log("this is unit %s "%hookenv.local_unit())
-    """
-
-    """
-    for rel in hookenv.relation_ids('peer'):
-        hookenv.log("Let s check relation %s"%rel)
-        related_unit=hookenv.related_units(rel)
-        for u in related_unit:
-            hookenv.log("related=%s"%u)
-
-    """
-
     host.service('stop',"ntp")
     write_config()
     host.service('start',"ntp")
