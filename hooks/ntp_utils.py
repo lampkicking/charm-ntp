@@ -53,6 +53,7 @@ def write_config():
     ntpconf+="# The following servers are ntpmaster units \n"
     hookenv.log("Now let s mention our local masters")
 
+    """
     for rel in hookenv.relation_ids('master'):
         hookenv.log("Let s check relation %s"%rel)
         related_unit=hookenv.related_units(rel)
@@ -61,7 +62,7 @@ def write_config():
             u_addr=hookenv.relation_get(attribute='private-address', unit=u, rid=rel)
             hookenv.log("unit addr= = %s"% u_addr)
             ntpconf+="server %s iburst \n"%u_addr
-
+    """
 
     host.write_file("/etc/ntp.conf",ntpconf)
 
