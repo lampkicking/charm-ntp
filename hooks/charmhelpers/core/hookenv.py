@@ -197,7 +197,7 @@ def relation_ids(reltype=None):
     relid_cmd_line = ['relation-ids', '--format=json']
     if reltype is not None:
         relid_cmd_line.append(reltype)
-        return json.loads(subprocess.check_output(relid_cmd_line))
+        return json.loads(subprocess.check_output(relid_cmd_line)) or []
     return []
 
 
@@ -208,7 +208,7 @@ def related_units(relid=None):
     units_cmd_line = ['relation-list', '--format=json']
     if relid is not None:
         units_cmd_line.extend(('-r', relid))
-    return json.loads(subprocess.check_output(units_cmd_line))
+    return json.loads(subprocess.check_output(units_cmd_line)) or []
 
 
 @cached
@@ -269,7 +269,7 @@ def relations():
         relids = {}
         for relid in relation_ids(reltype):
             units = {local_unit(): relation_get(unit=local_unit(), rid=relid)}
-            for unit in related_units(relid) or []:
+            for unit in related_units(relid):
                 reldata = relation_get(unit=unit, rid=relid)
                 units[unit] = reldata
             relids[relid] = units
