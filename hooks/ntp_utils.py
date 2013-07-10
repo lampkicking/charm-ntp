@@ -48,14 +48,12 @@ def write_config():
 
     if 'master' in relations.keys() and len(relations['master'].keys()):
         for rel in hookenv.relation_ids('master'):
-            hookenv.log("Let s check relation %s"%rel)
             related_unit=hookenv.related_units(rel)
             for u in related_unit:
                 u_addr=hookenv.relation_get(attribute='private-address', unit=u, rid=rel)
                 ntpconf+="server %s iburst \n"%u_addr
 
     elif source=='':
-        hookenv.log("No master nor source set, let s use the vanilla conf file")
         shutil.copy("/etc/ntp.conf.orig","/etc/ntp.conf")
         return
 
