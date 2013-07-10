@@ -269,7 +269,7 @@ def relations():
         relids = {}
         for relid in relation_ids(reltype):
             units = {local_unit(): relation_get(unit=local_unit(), rid=relid)}
-            for unit in related_units(relid):
+            for unit in related_units(relid) or []:
                 reldata = relation_get(unit=unit, rid=relid)
                 units[unit] = reldata
             relids[relid] = units
