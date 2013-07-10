@@ -57,8 +57,8 @@ def write_config():
 
     master_exist=False
     relations=hookenv.relations()
-    hookenv.log("relation=%s"%relations)
-    if 'master' not in relations.keys() and len(relations['master'].keys()):
+    hookenv.log("relations=%s"%relations)
+    if 'master' in relations.keys() and len(relations['master'].keys()):
         hookenv.log("Master exist")
         master_exist_exist=True
     else:
