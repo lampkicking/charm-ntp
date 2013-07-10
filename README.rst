@@ -27,11 +27,11 @@ to trust then you can use that instead::
 
   juju set ntp "source=myatomiclock.local.net"
 
-You can also specify multiple sources::
+You can also specify multiple sources and options ::
 
-  juju set ntp "source=mac1.local.net mac2.local.net"
+  juju set ntp "source=mac1.local.net,mac2.local.net iburst,mac3.local.net"
 
-Sources should be space separated.
+Sources should be comma separated.
 
 Mastered
 ++++++++

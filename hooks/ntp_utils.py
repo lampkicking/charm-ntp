@@ -54,6 +54,11 @@ def write_config():
                 u_addr=hookenv.relation_get(attribute='private-address', unit=u, rid=rel)
                 ntpconf+="server %s iburst \n"%u_addr
 
+    elif source=='':
+        hookenv.log("No master nor source set, let s use the vanilla conf file")
+        shutil.copy("/etc/ntp.conf.orig","/etc/ntp.conf")
+        return
+
     host.write_file("/etc/ntp.conf",ntpconf)
 
 @hooks.hook('config-changed')
