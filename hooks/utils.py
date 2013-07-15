@@ -19,9 +19,3 @@ def render_template(template_name, context, template_dir=TEMPLATES_DIR):
         loader=jinja2.FileSystemLoader(template_dir))
     template = templates.get_template(template_name)
     return template.render(context)
-
-
-
-def plop():
-    import charmhelpers.core.hookenv as hookenv
-    hookenv.log("PLOP PLOP PLOP")
