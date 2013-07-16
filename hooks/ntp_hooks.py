@@ -29,7 +29,7 @@ def write_config():
 
     remote_sources=[]
 
-    sources=source.split(",")
+    sources=source.split(" ")
     for s in sources:
         if not len(s):
             continue

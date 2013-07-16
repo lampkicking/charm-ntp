@@ -29,7 +29,7 @@ to trust then you can use that instead::
 
 You can also specify multiple sources and options ::
 
-  juju set ntp "source=mac1.local.net,mac2.local.net iburst,mac3.local.net"
+  juju set ntp "source=mac1.local.net mac2.local.net mac3.local.net"
 
 Sources should be comma separated.
 
