@@ -18,7 +18,7 @@ def install():
     host.apt_update(fatal=True)
     host.apt_install(["ntp"], fatal=True)
     shutil.copy("/etc/ntp.conf", "/etc/ntp.conf.orig")
-
+    hookenv.open_port(123,protocol="UDP")
 
 def write_config():
     config=hookenv.config()
