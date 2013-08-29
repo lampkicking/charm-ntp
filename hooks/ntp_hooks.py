@@ -3,6 +3,7 @@
 import sys
 import charmhelpers.core.hookenv as hookenv
 import charmhelpers.core.host as host
+import charmhelpers.fetch as fetch
 from charmhelpers.core.hookenv import UnregisteredHookError
 import shutil
 import os
@@ -18,8 +19,8 @@ hooks = hookenv.Hooks()
 
 @hooks.hook('install')
 def install():
-    host.apt_update(fatal=True)
-    host.apt_install(["ntp"], fatal=True)
+    fetch.apt_update(fatal=True)
+    fetch.apt_install(["ntp"], fatal=True)
     shutil.copy(NTP_CONF, NTP_CONF_ORIG)
 
 
