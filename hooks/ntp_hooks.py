@@ -1,80 +1,55 @@
 #!/usr/bin/python
+
 import sys
 import charmhelpers.core.hookenv as hookenv
 import charmhelpers.core.host as host
 from charmhelpers.core.hookenv import UnregisteredHookError
-import os
 import shutil
-import subprocess
-import json
+import os
 from utils import (
     render_template,
 )
 
+NTP_CONF = '/etc/ntp.conf'
+NTP_CONF_ORIG = '{}.orig'.format(NTP_CONF)
+
 hooks = hookenv.Hooks()
+
 
 @hooks.hook('install')
 def install():
     host.apt_update(fatal=True)
     host.apt_install(["ntp"], fatal=True)
-    shutil.copy("/etc/ntp.conf", "/etc/ntp.conf.orig")
-    hookenv.open_port(123,protocol="UDP")
+    shutil.copy(NTP_CONF, NTP_CONF_ORIG)
+    hookenv.open_port(123, protocol="UDP")
 
-def write_config():
-    config=hookenv.config()
-    if "source" in config.keys():
-        source=config['source']
-    else:
-        source=''
 
-    remote_sources=[]
-
-    sources=source.split(" ")
-    for s in sources:
-        if not len(s):
-            continue
-        remote_sources.append({'name':s})
-
-    relations=hookenv.relations()
-
-    if 'master' in relations.keys() and len(relations['master'].keys()):
-        for rel in hookenv.relation_ids('master'):
-            related_unit=hookenv.related_units(rel)
-            for u in related_unit:
-                u_addr=hookenv.relation_get(attribute='private-address', unit=u, rid=rel)
-                remote_sources.append({'name':'%s iburst'%u_addr})
-    elif source=='':
-        shutil.copy("/etc/ntp.conf.orig","/etc/ntp.conf")
-        return
-
-    ntp_context = {
-        'servers': remote_sources
-        }
-
-    with open("/etc/ntp.conf","w") as ntpconf:
-        ntpconf.write(render_template("ntp.conf",ntp_context))
-        ntpconf.close()
-
+@hooks.hook('upgrade-charm')
 @hooks.hook('config-changed')
-def config_changed():
-    host.service('stop',"ntp")
-    write_config()
-    host.service('start',"ntp")
-
-
-@hooks.hook('master-relation-joined')
-def master_relation_joined():
-    config_changed()
-
-
 @hooks.hook('master-relation-changed')
-def master_relation_changed():
-    return
-
 @hooks.hook('master-relation-departed')
-def master_relation_departed():
-    master_addr=hookenv.relation_get("private-address")
-    config_changed()
+@host.restart_on_change({NTP_CONF: ['ntp']})
+def write_config():
+    source = hookenv.config('source')
+    remote_sources = []
+    if source:
+        sources = source.split(" ")
+        for source in sources:
+            if len(source) > 0:
+                remote_sources.append({'name': source})
+    for relid in hookenv.relation_ids('master'):
+        for unit in hookenv.related_units(relid=relid):
+            u_addr = hookenv.relation_get(attribute='private-address',
+                                          unit=unit, rid=relid)
+            remote_sources.append({'name': '%s iburst' % u_addr})
+
+    if len(remote_sources) == 0:
+        shutil.copy(NTP_CONF_ORIG, NTP_CONF)
+    else:
+        with open(NTP_CONF, "w") as ntpconf:
+            ntpconf.write(render_template(os.path.basename(NTP_CONF),
+                                          {'servers': remote_sources}))
+
 
 if __name__ == '__main__':
     try:
