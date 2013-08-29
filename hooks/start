@@ -1,5 +1,1 @@
-#!/bin/bash
-
-set -e
-
-service ntp start || true
+ntp_hooks.py
