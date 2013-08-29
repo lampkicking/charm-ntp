@@ -33,10 +33,9 @@ def write_config():
     source = hookenv.config('source')
     remote_sources = []
     if source:
-        sources = source.split(" ")
-        for source in sources:
-            if len(source) > 0:
-                remote_sources.append({'name': source})
+        for s in source.split(" "):
+            if len(s) > 0:
+                remote_sources.append({'name': s})
     for relid in hookenv.relation_ids('master'):
         for unit in hookenv.related_units(relid=relid):
             u_addr = hookenv.relation_get(attribute='private-address',
