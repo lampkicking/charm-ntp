@@ -25,11 +25,11 @@ the ntp ubuntu package.
 However, if you have a handy atomic clock on your network which you would prefer
 to trust then you can use that instead::
 
-  juju set ntp "source=myatomiclock.local.net"
+  juju set ntp source=myatomiclock.local.net
 
 You can also specify multiple sources::
 
-  juju set ntp "source=mac1.local.net mac2.local.net"
+  juju set ntp source="mac1.local.net mac2.local.net mac3.local.net"
 
 Sources should be space separated.
 
@@ -52,7 +52,7 @@ have a good internal time source such as an atomic clock.
 
 You can of course have more that one ntpmaster::
 
-  juju add-unit -n 2 ntpmaster
+  juju add-unit ntpmaster
 
 All services that the ntp charm is subordinate to will be configured to sync with
 all avaliable masters.

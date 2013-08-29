@@ -1,9 +1,1 @@
-#!/bin/bash
-
-set -e
-
-apt-get update
-apt-get install -y ntp
-
-# Back installed config file for later use
-cp /etc/ntp.conf /etc/ntp.conf.orig
+ntp_hooks.py

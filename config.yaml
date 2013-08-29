@@ -1,4 +1,5 @@
 options:
   source:
     type: string
-    description: Space separated list of NTP servers to use as source for time
+    description: Space separated list of NTP servers to use as source for time.
+    default: ""
