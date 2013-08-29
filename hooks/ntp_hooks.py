@@ -21,7 +21,6 @@ def install():
     host.apt_update(fatal=True)
     host.apt_install(["ntp"], fatal=True)
     shutil.copy(NTP_CONF, NTP_CONF_ORIG)
-    hookenv.open_port(123, protocol="UDP")
 
 
 @hooks.hook('upgrade-charm')
