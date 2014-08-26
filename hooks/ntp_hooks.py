@@ -5,11 +5,10 @@ import charmhelpers.core.hookenv as hookenv
 import charmhelpers.core.host as host
 import charmhelpers.fetch as fetch
 from charmhelpers.core.hookenv import UnregisteredHookError
+from charmhelpers.contrib.templating.jinja import render
 import shutil
 import os
-from utils import (
-    render_template,
-)
+
 
 NTP_CONF = '/etc/ntp.conf'
 NTP_CONF_ORIG = '{}.orig'.format(NTP_CONF)
@@ -46,8 +45,8 @@ def write_config():
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)
     else:
         with open(NTP_CONF, "w") as ntpconf:
-            ntpconf.write(render_template(os.path.basename(NTP_CONF),
-                                          {'servers': remote_sources}))
+            ntpconf.write(render(os.path.basename(NTP_CONF),
+                                 {'servers': remote_sources}))
 
 
 if __name__ == '__main__':
