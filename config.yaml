@@ -15,3 +15,7 @@ options:
     default: 4
     type: int
     description: Minimum number of sources we should have
+  use_iburst:
+    default: false
+    type: boolean
+    description: Use iburst for all servers, not just ntpmaster

@@ -42,12 +42,16 @@ def install():
             'ntp-peers-relation-changed')
 @host.restart_on_change({NTP_CONF: ['ntp']})
 def write_config():
+    use_iburst = hookenv.config('use_iburst')
     source = hookenv.config('source')
     remote_sources = []
     if source:
         for s in source.split(" "):
             if len(s) > 0:
-                remote_sources.append({'name': s})
+                if use_iburst:
+                    remote_sources.append({'name': '%s iburst' % s})
+                else:
+                    remote_sources.append({'name': s})
     for relid in hookenv.relation_ids('master'):
         for unit in hookenv.related_units(relid=relid):
             u_addr = hookenv.relation_get(attribute='private-address',
@@ -60,18 +64,24 @@ def write_config():
     if peers:
         for p in peers.split(" "):
             if len(p) > 0:
-                remote_peers.append(p)
+                if use_iburst:
+                    remote_peers.append({'name': '%s iburst' % p})
+                else:
+                    remote_peers.append({'name': p})
     if hookenv.relation_ids('ntp-peers'):
         if auto_peers:
             for rp in get_peer_nodes():
-                remote_peers.append(rp)
+                if use_iburst:
+                    remote_peers.append({'name': '%s iburst' % rp})
+                else:
+                    remote_peers.append({'name': rp})
 
     total = len(remote_sources) + len(remote_peers)
     total_sources = hookenv.config('total_sources')
     hookenv.log("Total remote ntp sources: {}".format(total))
     if total < total_sources:
-        hookenv.log("WARNING: You should 4 or more remote \
-                    ntp sources configured!")
+        hookenv.log("WARNING: You should  have {} or more remote \
+                    ntp sources configured!".format(total))
 
     if len(remote_sources) == 0:
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)
