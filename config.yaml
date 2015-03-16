@@ -19,3 +19,4 @@ options:
     default: false
     type: boolean
     description: Use iburst for all servers, not just ntpmaster
+

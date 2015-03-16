@@ -64,17 +64,11 @@ def write_config():
     if peers:
         for p in peers.split(" "):
             if len(p) > 0:
-                if use_iburst:
-                    remote_peers.append({'name': '%s iburst' % p})
-                else:
-                    remote_peers.append({'name': p})
+                remote_peers.append(p)
     if hookenv.relation_ids('ntp-peers'):
         if auto_peers:
             for rp in get_peer_nodes():
-                if use_iburst:
-                    remote_peers.append({'name': '%s iburst' % rp})
-                else:
-                    remote_peers.append({'name': rp})
+                remote_peers.append(rp)
 
     total = len(remote_sources) + len(remote_peers)
     total_sources = hookenv.config('total_sources')
@@ -89,7 +83,8 @@ def write_config():
         with open(NTP_CONF, "w") as ntpconf:
             ntpconf.write(render(os.path.basename(NTP_CONF),
                                  {'servers': remote_sources,
-                                  'peers': remote_peers}))
+                                  'peers': remote_peers,
+                                  'use_iburst': use_iburst}))
 
 
 if __name__ == '__main__':
