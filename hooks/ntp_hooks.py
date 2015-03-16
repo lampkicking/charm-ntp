@@ -21,11 +21,8 @@ def get_peer_nodes():
     hosts.append(hookenv.unit_get('private-address'))
     for relid in hookenv.relation_ids('ntp-peers'):
         for unit in hookenv.related_units(relid):
-            if hookenv.relation_get('ready',
-                            rid=relid,
-                            unit=unit):
-                hosts.append(hookenv.relation_get('private-address',
-                                          unit, relid))
+            hosts.append(hookenv.relation_get('private-address',
+                         unit, relid))
     hosts.sort()
     return hosts
 
@@ -58,13 +55,24 @@ def write_config():
             remote_sources.append({'name': '%s iburst' % u_addr})
 
     auto_peers = hookenv.config('auto_peers')
+    peers = hookenv.config('peers')
     remote_peers = []
+    if peers:
+        for p in peers.split(" "):
+            if len(p) > 0:
+                remote_peers.append(p)
     if hookenv.relation_ids('ntp-peers'):
         if auto_peers:
-            if len(get_peer_nodes()) < 3:
-                hookenv.log('Not enough ntp peers, we need at least 3')
-            else:
-                remote_peers = get_peer_nodes()
+            for rp in get_peer_nodes():
+                remote_peers.append(rp)
+
+    total = len(remote_sources) + len(remote_peers)
+    total_sources = hookenv.config('total_sources')
+    hookenv.log("We have %s total remote ntp sources \
+                (including sources and peers)", total)
+    if total < total_sources:
+        hookenv.log("WARNING: You should 4 or more remote
+                    ntp sources configured!")
 
     if len(remote_sources) == 0:
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)

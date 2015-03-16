@@ -3,7 +3,15 @@ options:
     default: ""
     type: string
     description: Space separated list of NTP servers to use as source for time.
+  peers:
+    default: ""
+    type: string
+    description: Space separated list of NTP servers to use as peers for time.
   auto_peers:
     default: false
     type: boolean
     description: Will ntp auto peer between the environment
+  total_sources:
+    default: 4
+    type: int
+    description: Minimum number of sources we should have
