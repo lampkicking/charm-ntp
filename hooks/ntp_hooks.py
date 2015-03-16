@@ -69,7 +69,7 @@ def write_config():
     total = len(remote_sources) + len(remote_peers)
     total_sources = hookenv.config('total_sources')
     hookenv.log("We have %s total remote ntp sources \
-                (including sources and peers)", total)
+                - including sources and peers", total)
     if total < total_sources:
         hookenv.log("WARNING: You should 4 or more remote \
                     ntp sources configured!")
