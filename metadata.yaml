@@ -10,7 +10,7 @@ description: |
   .
   This charm can be deployed alongside principle charms to enable NTP
   management across deployed services.
-categories:
+tags:
     - misc
 requires:
   juju-info:
