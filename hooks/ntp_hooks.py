@@ -16,6 +16,20 @@ NTP_CONF_ORIG = '{}.orig'.format(NTP_CONF)
 hooks = hookenv.Hooks()
 
 
+def get_peer_nodes():
+    hosts = []
+    hosts.append(hookenv.unit_get('private-address'))
+    for relid in hookenv.relation_ids('ntp-peers'):
+        for unit in hookenv.related_units(relid):
+            if hookenv.relation_get('ready',
+                            rid=relid,
+                            unit=unit):
+                hosts.append(hookenv.relation_get('private-address',
+                                          unit, relid))
+    hosts.sort()
+    return hosts
+
+
 @hooks.hook('install')
 def install():
     fetch.apt_update(fatal=True)
@@ -27,6 +41,8 @@ def install():
 @hooks.hook('config-changed')
 @hooks.hook('master-relation-changed')
 @hooks.hook('master-relation-departed')
+@hooks.hook('ntp-peers-relation-joined',
+            'ntp-peers-relation-changed')
 @host.restart_on_change({NTP_CONF: ['ntp']})
 def write_config():
     source = hookenv.config('source')
@@ -41,12 +57,22 @@ def write_config():
                                           unit=unit, rid=relid)
             remote_sources.append({'name': '%s iburst' % u_addr})
 
+    auto_peers = hookenv.config('auto_peers')
+    remote_peers = []
+    if hookenv.relation_ids('ntp-peers'):
+        if auto_peers:
+            if len(get_peer_nodes()) < 3:
+                hookenv.log('Not enough ntp peers, we need at least 3')
+            else:
+                remote_peers = get_peer_nodes()
+
     if len(remote_sources) == 0:
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)
     else:
         with open(NTP_CONF, "w") as ntpconf:
             ntpconf.write(render(os.path.basename(NTP_CONF),
-                                 {'servers': remote_sources}))
+                                 {'servers': remote_sources,
+                                  'peers': remote_peers}))
 
 
 if __name__ == '__main__':
