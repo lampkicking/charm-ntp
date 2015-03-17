@@ -51,6 +51,9 @@ def write_config():
             ntpconf.write(render(os.path.basename(NTP_CONF),
                                  {'servers': remote_sources}))
 
+    if hookenv.relations_of_type('nrpe-external-master'):
+        update_nrpe_config()
+
 
 @hooks.hook('nrpe-external-master-relation-joined',
             'nrpe-external-master-relation-changed')
@@ -59,8 +62,8 @@ def update_nrpe_config():
     fetch.apt_install('python-dbus')
     if os.path.isdir(NAGIOS_PLUGINS):
         host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
-                           'check_ntpd.pl'),
-              os.path.join(NAGIOS_PLUGINS, 'check_ntpd.pl'))
+                   'check_ntpd.pl'),
+                   os.path.join(NAGIOS_PLUGINS, 'check_ntpd.pl'))
 
     hostname = nrpe.get_nagios_hostname()
     current_unit = nrpe.get_nagios_unit_name()
