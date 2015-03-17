@@ -9,6 +9,9 @@ from charmhelpers.contrib.templating.jinja import render
 import shutil
 import os
 
+from charmhelpers.contrib.charmsupport import nrpe
+
+NAGIOS_PLUGINS = '/usr/local/lib/nagios/plugins'
 
 NTP_CONF = '/etc/ntp.conf'
 NTP_CONF_ORIG = '{}.orig'.format(NTP_CONF)
@@ -47,6 +50,28 @@ def write_config():
         with open(NTP_CONF, "w") as ntpconf:
             ntpconf.write(render(os.path.basename(NTP_CONF),
                                  {'servers': remote_sources}))
+
+
+@hooks.hook('nrpe-external-master-relation-joined',
+            'nrpe-external-master-relation-changed')
+def update_nrpe_config():
+    # python-dbus is used by check_upstart_job
+    fetch.apt_install('python-dbus')
+    if os.path.isdir(NAGIOS_PLUGINS):
+        host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
+                           'check_ntpd.pl'),
+              os.path.join(NAGIOS_PLUGINS, 'check_ntpd.pl'))
+
+    hostname = nrpe.get_nagios_hostname()
+    current_unit = nrpe.get_nagios_unit_name()
+    nrpe_setup = nrpe.NRPE(hostname=hostname)
+    nrpe.add_init_service_checks(nrpe_setup, 'ntp', current_unit)
+    nrpe_setup.add_check(
+        shortname="ntp_status",
+        description='Check NTP status {%s}' % current_unit,
+        check_cmd='check_ntpd.pl'
+    )
+    nrpe_setup.write()
 
 
 if __name__ == '__main__':
