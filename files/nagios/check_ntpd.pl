@@ -1,4 +1,6 @@
 #!/usr/bin/perl -w
+# Script from http://exchange.nagios.org/directory/Plugins/Network-Protocols/NTP-and-Time/check_ntpd/details
+
 use Getopt::Long;
 use strict;
 
