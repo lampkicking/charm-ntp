@@ -51,8 +51,7 @@ def write_config():
             ntpconf.write(render(os.path.basename(NTP_CONF),
                                  {'servers': remote_sources}))
 
-    if hookenv.relations_of_type('nrpe-external-master'):
-        update_nrpe_config()
+    update_nrpe_config()
 
 
 @hooks.hook('nrpe-external-master-relation-joined',
