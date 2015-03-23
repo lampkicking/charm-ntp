@@ -82,7 +82,7 @@ def update_nrpe_config():
         nrpe_setup.add_check(
             shortname="ntpmon_%s" % nc,
             description='Check NTPmon %s {%s}' % (nc, current_unit),
-            check_cmd='check_ntpmon.py --check' % nc
+            check_cmd='check_ntpmon.py --check %s' % nc
         )
 
     nrpe_setup.write()
