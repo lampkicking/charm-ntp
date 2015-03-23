@@ -19,3 +19,9 @@ options:
     description: |
         A comma-separated list of nagios servicegroups.
         If left empty, the nagios_context will be used as the servicegroup
+  nagios_ntpmon_checks:
+    default: "offset peers reachability sync"
+    type: string
+    description: |
+        A space-seperated list of nagios ntpmon checks to enable.
+        If left empty, no ntpmon checks will be used.
