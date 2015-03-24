@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Copyright 2014-2015 Canonical Limited.
 #
 # This file is part of charm-helpers.
@@ -14,26 +17,26 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with charm-helpers.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Templating using the python-jinja2 package.
-"""
 import six
-from charmhelpers.fetch import apt_install
-try:
-    import jinja2
-except ImportError:
-    if six.PY3:
-        apt_install(["python3-jinja2"])
+
+
+def bool_from_string(value):
+    """Interpret string value as boolean.
+
+    Returns True if value translates to True otherwise False.
+    """
+    if isinstance(value, six.string_types):
+        value = six.text_type(value)
     else:
-        apt_install(["python-jinja2"])
-    import jinja2
+        msg = "Unable to interpret non-string value '%s' as boolean" % (value)
+        raise ValueError(msg)
 
+    value = value.strip().lower()
 
-DEFAULT_TEMPLATES_DIR = 'templates'
+    if value in ['y', 'yes', 'true', 't']:
+        return True
+    elif value in ['n', 'no', 'false', 'f']:
+        return False
 
-
-def render(template_name, context, template_dir=DEFAULT_TEMPLATES_DIR):
-    templates = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dir))
-    template = templates.get_template(template_name)
-    return template.render(context)
+    msg = "Unable to interpret string value '%s' as boolean" % (value)
+    raise ValueError(msg)
