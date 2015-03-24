@@ -10,8 +10,12 @@ description: |
   .
   This charm can be deployed alongside principle charms to enable NTP
   management across deployed services.
-categories:
+tags:
     - misc
+provides:
+  nrpe-external-master:
+    interface: nrpe-external-master
+    scope: container
 requires:
   juju-info:
     interface: juju-info
