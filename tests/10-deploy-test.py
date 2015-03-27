@@ -39,7 +39,7 @@ print("Deploying environment")
 # Deploy the environment and wait for it to setup.
 try:
     d.setup(timeout=seconds)
-    d.sentry.wait(seconds)
+    d.sentry.wait(timeout=seconds)
 except amulet.helpers.TimeoutError:
     message = 'The environment did not setup in %d seconds.' % seconds
     # The SKIP status enables skip or fail the test based on configuration.
