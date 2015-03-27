@@ -17,7 +17,6 @@ ntp_configuration = {
 }
 
 d = amulet.Deployment(series='trusty', juju_deployer='juju-deployer -d -v')
-print("Adding instances")
 # Add the ntp charm to the deployment.
 d.add('ntp')
 # Add the ntpmaster charm to the deployment.
@@ -25,17 +24,14 @@ d.add('ntpmaster')
 # Add the ubuntu charm to the deployment.
 d.add('ubuntu', units=2)
 #d.add('ubuntu')
-print("Configuring charms")
 # Configure the ntp charm.
 d.configure('ntp', ntp_configuration)
 
-print("Relating charms")
-# Relate the ntp and ntpmaster charms.
-d.relate('ntp:master', 'ntpmaster:master')
 # Relate the ntp and the ubuntu charm.
 d.relate('ntp:juju-info', 'ubuntu:juju-info')
+# Relate the ntp and ntpmaster charms.
+d.relate('ntp:master', 'ntpmaster:master')
 
-print("Deploying environment")
 # Deploy the environment and wait for it to setup.
 try:
     d.setup(timeout=seconds)
