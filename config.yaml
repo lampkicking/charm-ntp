@@ -33,10 +33,6 @@ options:
     default: false
     type: boolean
     description: Will ntp auto peer between the environment
-  total_sources:
-    default: 4
-    type: int
-    description: Minimum number of sources we should have
   use_iburst:
     default: false
     type: boolean
