@@ -23,7 +23,6 @@ d.add('ntp')
 d.add('ntpmaster')
 # Add the ubuntu charm to the deployment.
 d.add('ubuntu', units=2)
-#d.add('ubuntu')
 # Configure the ntp charm.
 d.configure('ntp', ntp_configuration)
 
@@ -42,7 +41,6 @@ except amulet.helpers.TimeoutError:
     amulet.raise_status(amulet.SKIP, msg=message)
 except:
     raise
-print("Done deploying environment")
 
 # Unable to get the sentry unit for ntp because it is a subordinate.
 # ntp_unit = d.sentry.unit['ntp/0']
