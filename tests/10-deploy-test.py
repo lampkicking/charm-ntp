@@ -77,11 +77,11 @@ if code != 0 or output.find('NTP server is running') == -1:
     print(message)
     amulet.raise_status(amulet.FAIL, msg=message)
 
-# The ubuntu cloud image does not have ntp installed by default, 
+# The ubuntu cloud image does not have ntp installed by default,
 # and therefore does not have the /etc/ntp.conf file.
 
 # Read in the ntp configuration file from the ubuntu unit.
-configuration_file = ubuntu_unit.file_contents('/etc/ntp.conf')
+configuration_file = ubuntu_unit_0.file_contents('/etc/ntp.conf')
 # This call will fail with an IO exception if the file does not exist.
 
 # Search for ntp server 0 in the config file, raise an exception if not found.
