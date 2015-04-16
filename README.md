@@ -27,11 +27,20 @@ to trust then you can use that instead:
 
     juju set ntp source=myatomiclock.local.net
 
-You can also specify multiple sources:
+You can also specify multiple sources and peers:
 
     juju set ntp source="mac1.local.net mac2.local.net mac3.local.net"
+    juju set ntp peers="mac1.local.net mac2.local.net mac3.local.net"
 
-Sources should be space separated.
+Sources and peers should be space separated.
+
+When you need a set of services to keep close time to each other, it may
+be useful to have them automatically peer with each other.  This means
+any set of services that use the same ntp subordinate will peer together.
+
+    juju set ntp auto_peers=true
+
+This will add all the hosts as peers to each other.
 
 Mastered
 ========
