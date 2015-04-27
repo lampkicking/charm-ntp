@@ -88,7 +88,8 @@ def write_config():
             'nrpe-external-master-relation-changed')
 def update_nrpe_config():
     # python-dbus is used by check_upstart_job
-    fetch.apt_install('python-dbus')
+    # python-psutil is used by check_ntpmon
+    fetch.apt_install(['python-dbus', 'python-psutil'])
     nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks')
     if os.path.isdir(NAGIOS_PLUGINS):
         host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
