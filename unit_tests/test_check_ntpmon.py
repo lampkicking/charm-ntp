@@ -23,6 +23,11 @@ import argparse
 import unittest
 import sys
 
+from pkg_resources import resource_filename
+
+# allow importing actions from the hooks directory
+sys.path.append(resource_filename(__name__, '../files/nagios'))
+
 from check_ntpmon import CheckNTPMon, CheckNTPMonSilent, NTPPeers
 
 testdata = [
