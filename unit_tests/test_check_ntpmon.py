@@ -25,7 +25,7 @@ import sys
 
 from pkg_resources import resource_filename
 
-# allow importing actions from the hooks directory
+# allow importing check_ntpmon from the correct directory
 sys.path.append(resource_filename(__name__, '../files/nagios'))
 
 from check_ntpmon import CheckNTPMon, CheckNTPMonSilent, NTPPeers
