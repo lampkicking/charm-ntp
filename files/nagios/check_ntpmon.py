@@ -20,23 +20,25 @@
 #
 
 import argparse
+import psutil
 import re
 import subprocess
 import sys
+import time
 import traceback
 import warnings
 
 
 def ishostnamey(name):
     """Return true if the passed name is roughly hostnamey.  NTP is rather casual about how it
-    reports hostnames and IP addresses, so we can't be too strict.  This function simply tests
+    reports hostnames and IP addresses, so we can't be too strict.  This method simply tests
     that all of the characters in the string are letters, digits, dash, or period."""
     return re.search(r'^[\w.-]*$', name) is not None and name.find('_') == -1
 
 
 def isipaddressy(name):
     """Return true if the passed name is roughly IP addressy.  NTP is rather casual about how it
-    reports hostnames and IP addresses, so we can't be too strict.  This function simply tests
+    reports hostnames and IP addresses, so we can't be too strict.  This method simply tests
     that all of the characters in the string are hexadecimal digits, period, or colon."""
     return re.search(r'^[0-9a-f.:]*$', name) is not None
 
@@ -405,11 +407,45 @@ class NTPPeers(object):
     def query():
         lines = None
         try:
-            output = subprocess.check_output(["ntpq", "-pn"])
-            lines = output.split("\n")
+            null = open("/dev/null", "a")
+            output = subprocess.check_output(["ntpq", "-pn"], stderr=null)
+            if len(output) > 0:
+                lines = output.split("\n")
         except:
             traceback.print_exc(file=sys.stdout)
         return lines
+
+
+class NTPProcess(object):
+
+    def __init__(self, names=None):
+        """Look for ntpd or xntpd in the process table and save its process object."""
+        if names is None:
+            names = ["ntpd", "xntpd"]
+        # Check for old psutil per http://grodola.blogspot.com.au/2014/01/psutil-20-porting.html
+        self.PSUTIL = psutil.version_info >= (2, 0)
+        self.proc = None
+        for proc in psutil.process_iter():
+            try:
+                name = proc.name() if self.PSUTIL else proc.name
+                if name in names:
+                    self.proc = proc
+                    break
+            except psutil.Error:
+                pass
+
+    def runtime(self):
+        """Return the length of time in seconds that the process has been running.
+        If ntpd is not running or any error occurs, return -1."""
+        if self.proc is None:
+            return -1
+        try:
+            now = time.time()
+            create_time = self.proc.create_time() if self.PSUTIL else self.proc.create_time
+            start = int(create_time)
+            return now - start
+        except psutil.Error:
+            return -1
 
 
 def main():
@@ -450,6 +486,11 @@ def main():
         action='store_true',
         help='Include "ntpq -pn" output and internal state dump along with check results.')
     parser.add_argument(
+        '--run-time',
+        default=512,
+        type=int,
+        help='Time in seconds (default: 512) for which to always return OK after ntpd startup.')
+    parser.add_argument(
         '--test',
         action='store_true',
         help='Accept "ntpq -pn" output on standard input instead of running it.')
@@ -465,9 +506,15 @@ def main():
     lines = NTPPeers.query() if not args.test else [x.rstrip() for x in sys.stdin.readlines()]
     if lines is None:
         # Unknown result
-        print "Cannot get peers from ntpq."
-        print "Please check that an NTP server is installed and functional."
+        print "UNKNOWN: Cannot get peers from ntpq.  Please check that an NTP server is installed and running."
         sys.exit(3)
+
+    # Don't report anything other than OK until ntpd has been running for at
+    # least enough time for 8 polling intervals of 64 seconds each.
+    age = NTPProcess().runtime()
+    if age > 0 and age <= args.run_time:
+        print "OK: ntpd still starting up (running %d seconds)" % age
+        sys.exit(0)
 
     # initialise our object with the results of ntpq and our preferred check
     # thresholds
