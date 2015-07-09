@@ -92,9 +92,6 @@ def update_nrpe_config():
     fetch.apt_install(['python-dbus', 'python-psutil'])
     nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks')
     if os.path.isdir(NAGIOS_PLUGINS):
-        host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
-                   'check_ntpd.pl'),
-                   os.path.join(NAGIOS_PLUGINS, 'check_ntpd.pl'))
         if nagios_ntpmon_checks:
             host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
                        'check_ntpmon.py'),
@@ -104,11 +101,6 @@ def update_nrpe_config():
     current_unit = nrpe.get_nagios_unit_name()
     nrpe_setup = nrpe.NRPE(hostname=hostname)
     nrpe.add_init_service_checks(nrpe_setup, ['ntp'], current_unit)
-    nrpe_setup.add_check(
-        shortname="ntp_status",
-        description='Check NTP status {%s}' % current_unit,
-        check_cmd='check_ntpd.pl'
-    )
     for nc in nagios_ntpmon_checks.split(" "):
         nrpe_setup.add_check(
             shortname="ntpmon_%s" % nc,
