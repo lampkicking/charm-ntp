@@ -17,7 +17,7 @@ options:
           juju-myservice-0
       If you're running multiple environments with the same services in them
       this allows you to differentiate between them.
-  nagios_servicegroups: 
+  nagios_servicegroups:
     default: ""
     type: string
     description: |
@@ -27,8 +27,9 @@ options:
     default: "offset peers reachability sync"
     type: string
     description: |
-        A space-seperated list of nagios ntpmon checks to enable.
-        If left empty, no ntpmon checks will be used.
+        A space-separated list of nagios ntpmon checks to enable.
+        Options are "offset peers reachability sync"; if all are specified,
+        they are combined into a single check; leave empty for no checks.
   auto_peers:
     default: false
     type: boolean

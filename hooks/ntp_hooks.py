@@ -90,23 +90,31 @@ def update_nrpe_config():
     # python-dbus is used by check_upstart_job
     # python-psutil is used by check_ntpmon
     fetch.apt_install(['python-dbus', 'python-psutil'])
-    nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks')
+    nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks').split(" ")
     if os.path.isdir(NAGIOS_PLUGINS):
-        if nagios_ntpmon_checks:
-            host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
-                       'check_ntpmon.py'),
-                       os.path.join(NAGIOS_PLUGINS, 'check_ntpmon.py'))
+        host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
+                   'check_ntpmon.py'),
+                   os.path.join(NAGIOS_PLUGINS, 'check_ntpmon.py'))
 
     hostname = nrpe.get_nagios_hostname()
     current_unit = nrpe.get_nagios_unit_name()
     nrpe_setup = nrpe.NRPE(hostname=hostname)
     nrpe.add_init_service_checks(nrpe_setup, ['ntp'], current_unit)
-    for nc in nagios_ntpmon_checks.split(" "):
+
+    # if all checks are specified, combine them into a single check to reduce Nagios noise
+    if set(nagios_ntpmon_checks) == set(['offset', 'peers', 'reachability', 'sync']):
         nrpe_setup.add_check(
-            shortname="ntpmon_%s" % nc,
-            description='Check NTPmon %s {%s}' % (nc, current_unit),
-            check_cmd='check_ntpmon.py --check %s' % nc
+            shortname="ntpmon",
+            description='Check NTPmon {}'.format(current_unit),
+            check_cmd='check_ntpmon.py'
         )
+    else:
+        for nc in nagios_ntpmon_checks:
+            nrpe_setup.add_check(
+                shortname="ntpmon_%s" % nc,
+                description='Check NTPmon %s {%s}' % (nc, current_unit),
+                check_cmd='check_ntpmon.py --check %s' % nc
+            )
 
     nrpe_setup.write()
 
