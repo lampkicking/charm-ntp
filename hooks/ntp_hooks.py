@@ -104,8 +104,15 @@ def update_nrpe_config():
     nrpe_setup = nrpe.NRPE(hostname=hostname)
     nrpe.add_init_service_checks(nrpe_setup, ['ntp'], current_unit)
 
+    allchecks = set(['offset', 'peers', 'reachability', 'sync'])
+
+    # remove any previously-created ntpmon checks
+    nrpe_setup.remove_check(shortname="ntpmon")
+    for c in allchecks:
+        nrpe_setup.remove_check(shortname="ntpmon_%s" % c)
+
     # if all checks are specified, combine them into a single check to reduce Nagios noise
-    if set(nagios_ntpmon_checks) == set(['offset', 'peers', 'reachability', 'sync']):
+    if set(nagios_ntpmon_checks) == allchecks:
         nrpe_setup.add_check(
             shortname="ntpmon",
             description='Check NTPmon {}'.format(current_unit),
