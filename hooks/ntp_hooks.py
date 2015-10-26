@@ -76,9 +76,11 @@ def write_config():
     if hookenv.relation_ids('ntp-peers') and auto_peers:
         remote_peers = get_sources(get_peer_nodes(), iburst=use_iburst, source_list=remote_peers)
 
-    if len(remote_sources) == 0:
+    if len(remote_sources) == 0 and len(remote_peers) == 0:
+        # we have no peers/servers; restore default ntp.conf provided by OS
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)
     else:
+        # otherwise, write our own configuration
         with open(NTP_CONF, "w") as ntpconf:
             ntpconf.write(render(os.path.basename(NTP_CONF),
                                  {'servers': remote_sources,
