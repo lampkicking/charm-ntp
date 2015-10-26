@@ -120,11 +120,12 @@ def update_nrpe_config():
         )
     else:
         for nc in nagios_ntpmon_checks:
-            nrpe_setup.add_check(
-                shortname="ntpmon_%s" % nc,
-                description='Check NTPmon %s {%s}' % (nc, current_unit),
-                check_cmd='check_ntpmon.py --check %s' % nc
-            )
+            if len(nc) > 0:
+                nrpe_setup.add_check(
+                    shortname="ntpmon_%s" % nc,
+                    description='Check NTPmon %s {%s}' % (nc, current_unit),
+                    check_cmd='check_ntpmon.py --check %s' % nc
+                )
 
     nrpe_setup.write()
 
