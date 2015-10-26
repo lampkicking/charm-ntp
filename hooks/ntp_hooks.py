@@ -37,6 +37,22 @@ def install():
     shutil.copy(NTP_CONF, NTP_CONF_ORIG)
 
 
+def get_sources(sources, iburst=True, source_list=None):
+    if source_list is None:
+        source_list = []
+    if sources:
+        # allow both strings and lists
+        if isinstance(sources, basestring):
+            sources = sources.split(" ")
+        for s in sources:
+            if len(s) > 0:
+                if iburst:
+                    source_list.append('%s iburst' % s)
+                else:
+                    source_list.append(s)
+    return source_list
+
+
 @hooks.hook('upgrade-charm')
 @hooks.hook('config-changed')
 @hooks.hook('master-relation-changed')
@@ -47,31 +63,18 @@ def install():
 def write_config():
     use_iburst = hookenv.config('use_iburst')
     source = hookenv.config('source')
-    remote_sources = []
-    if source:
-        for s in source.split(" "):
-            if len(s) > 0:
-                if use_iburst:
-                    remote_sources.append({'name': '%s iburst' % s})
-                else:
-                    remote_sources.append({'name': s})
+    remote_sources = get_sources(source, iburst=use_iburst)
     for relid in hookenv.relation_ids('master'):
         for unit in hookenv.related_units(relid=relid):
             u_addr = hookenv.relation_get(attribute='private-address',
                                           unit=unit, rid=relid)
-            remote_sources.append({'name': '%s iburst' % u_addr})
+            remote_sources.append('%s iburst' % u_addr)
 
-    auto_peers = hookenv.config('auto_peers')
     peers = hookenv.config('peers')
-    remote_peers = []
-    if peers:
-        for p in peers.split(" "):
-            if len(p) > 0:
-                remote_peers.append(p)
-    if hookenv.relation_ids('ntp-peers'):
-        if auto_peers:
-            for rp in get_peer_nodes():
-                remote_peers.append(rp)
+    remote_peers = get_sources(peers, iburst=use_iburst)
+    auto_peers = hookenv.config('auto_peers')
+    if hookenv.relation_ids('ntp-peers') and auto_peers:
+        remote_peers = get_sources(get_peer_nodes(), iburst=use_iburst, source_list=remote_peers)
 
     if len(remote_sources) == 0:
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)
@@ -80,7 +83,7 @@ def write_config():
             ntpconf.write(render(os.path.basename(NTP_CONF),
                                  {'servers': remote_sources,
                                   'peers': remote_peers,
-                                  'use_iburst': use_iburst}))
+                                  }))
     update_nrpe_config()
 
 
