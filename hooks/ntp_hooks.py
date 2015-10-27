@@ -47,9 +47,9 @@ def get_sources(sources, iburst=True, source_list=None):
         for s in sources:
             if len(s) > 0:
                 if iburst:
-                    source_list.append('%s iburst' % s)
+                    source_list.append({'name': s, 'iburst': 'iburst'})
                 else:
-                    source_list.append(s)
+                    source_list.append({'name': s, 'iburst': ''})
     return source_list
 
 
@@ -68,7 +68,7 @@ def write_config():
         for unit in hookenv.related_units(relid=relid):
             u_addr = hookenv.relation_get(attribute='private-address',
                                           unit=unit, rid=relid)
-            remote_sources.append('%s iburst' % u_addr)
+            remote_sources.append({'name': u_addr, 'iburst': 'iburst'})
 
     peers = hookenv.config('peers')
     remote_peers = get_sources(peers, iburst=use_iburst)
