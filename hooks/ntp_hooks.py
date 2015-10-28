@@ -88,6 +88,9 @@ def write_config():
                                   }))
     update_nrpe_config()
 
+    if hookenv.relation_ids('nrpe-external-master'):
+        update_nrpe_config()
+
 
 @hooks.hook('nrpe-external-master-relation-joined',
             'nrpe-external-master-relation-changed')
