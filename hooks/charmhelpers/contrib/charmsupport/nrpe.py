@@ -153,7 +153,7 @@ define service {{
 
     def _get_service_filename(self, hostname):
         return os.path.join(NRPE.nagios_exportdir,
-                'service__{}_{}.cfg'.format(hostname, self.command))
+                            'service__{}_{}.cfg'.format(hostname, self.command))
 
     def _locate_cmd(self, check_cmd):
         search_path = (
@@ -174,7 +174,7 @@ define service {{
         if not os.path.exists(NRPE.nagios_exportdir):
             return
         for f in os.listdir(NRPE.nagios_exportdir):
-            if re.search('.*_{}.cfg'.format(self.command), f):
+            if f.endswith('_{}.cfg'.format(self.command)):
                 os.remove(os.path.join(NRPE.nagios_exportdir, f))
 
     def remove(self, hostname):
@@ -234,7 +234,11 @@ class NRPE(object):
         if hostname:
             self.hostname = hostname
         else:
-            self.hostname = "{}-{}".format(self.nagios_context, self.unit_name)
+            nagios_hostname = get_nagios_hostname()
+            if nagios_hostname:
+                self.hostname = nagios_hostname
+            else:
+                self.hostname = "{}-{}".format(self.nagios_context, self.unit_name)
         self.checks = []
 
     def add_check(self, *args, **kwargs):
@@ -244,7 +248,10 @@ class NRPE(object):
         if kwargs.get('shortname') is None:
             raise ValueError('shortname of check must be specified')
 
-        # use sensible defaults if they're not specified
+        # Use sensible defaults if they're not specified - these are not
+        # actually used during removal, but they're required for constructing
+        # the Check object; check_disk is chosen because it's part of the
+        # nagios-plugins-basic package.
         if kwargs.get('check_cmd') is None:
             kwargs['check_cmd'] = 'check_disk'
         if kwargs.get('description') is None:
