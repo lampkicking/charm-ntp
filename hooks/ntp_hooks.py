@@ -37,6 +37,22 @@ def install():
     shutil.copy(NTP_CONF, NTP_CONF_ORIG)
 
 
+def get_sources(sources, iburst=True, source_list=None):
+    if source_list is None:
+        source_list = []
+    if sources:
+        # allow both strings and lists
+        if isinstance(sources, basestring):
+            sources = sources.split(" ")
+        for s in sources:
+            if len(s) > 0:
+                if iburst:
+                    source_list.append({'name': s, 'iburst': 'iburst'})
+                else:
+                    source_list.append({'name': s, 'iburst': ''})
+    return source_list
+
+
 @hooks.hook('upgrade-charm')
 @hooks.hook('config-changed')
 @hooks.hook('master-relation-changed')
@@ -47,41 +63,33 @@ def install():
 def write_config():
     use_iburst = hookenv.config('use_iburst')
     source = hookenv.config('source')
-    remote_sources = []
-    if source:
-        for s in source.split(" "):
-            if len(s) > 0:
-                if use_iburst:
-                    remote_sources.append({'name': '%s iburst' % s})
-                else:
-                    remote_sources.append({'name': s})
+    remote_sources = get_sources(source, iburst=use_iburst)
     for relid in hookenv.relation_ids('master'):
         for unit in hookenv.related_units(relid=relid):
             u_addr = hookenv.relation_get(attribute='private-address',
                                           unit=unit, rid=relid)
-            remote_sources.append({'name': '%s iburst' % u_addr})
+            remote_sources.append({'name': u_addr, 'iburst': 'iburst'})
 
-    auto_peers = hookenv.config('auto_peers')
     peers = hookenv.config('peers')
-    remote_peers = []
-    if peers:
-        for p in peers.split(" "):
-            if len(p) > 0:
-                remote_peers.append(p)
-    if hookenv.relation_ids('ntp-peers'):
-        if auto_peers:
-            for rp in get_peer_nodes():
-                remote_peers.append(rp)
+    remote_peers = get_sources(peers, iburst=use_iburst)
+    auto_peers = hookenv.config('auto_peers')
+    if hookenv.relation_ids('ntp-peers') and auto_peers:
+        remote_peers = get_sources(get_peer_nodes(), iburst=use_iburst, source_list=remote_peers)
 
-    if len(remote_sources) == 0:
+    if len(remote_sources) == 0 and len(remote_peers) == 0:
+        # we have no peers/servers; restore default ntp.conf provided by OS
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)
     else:
+        # otherwise, write our own configuration
         with open(NTP_CONF, "w") as ntpconf:
             ntpconf.write(render(os.path.basename(NTP_CONF),
                                  {'servers': remote_sources,
                                   'peers': remote_peers,
-                                  'use_iburst': use_iburst}))
+                                  }))
     update_nrpe_config()
+
+    if hookenv.relation_ids('nrpe-external-master'):
+        update_nrpe_config()
 
 
 @hooks.hook('nrpe-external-master-relation-joined',
@@ -101,8 +109,15 @@ def update_nrpe_config():
     nrpe_setup = nrpe.NRPE(hostname=hostname)
     nrpe.add_init_service_checks(nrpe_setup, ['ntp'], current_unit)
 
+    allchecks = set(['offset', 'peers', 'reachability', 'sync'])
+
+    # remove any previously-created ntpmon checks
+    nrpe_setup.remove_check(shortname="ntpmon")
+    for c in allchecks:
+        nrpe_setup.remove_check(shortname="ntpmon_%s" % c)
+
     # if all checks are specified, combine them into a single check to reduce Nagios noise
-    if set(nagios_ntpmon_checks) == set(['offset', 'peers', 'reachability', 'sync']):
+    if set(nagios_ntpmon_checks) == allchecks:
         nrpe_setup.add_check(
             shortname="ntpmon",
             description='Check NTPmon {}'.format(current_unit),
@@ -110,11 +125,12 @@ def update_nrpe_config():
         )
     else:
         for nc in nagios_ntpmon_checks:
-            nrpe_setup.add_check(
-                shortname="ntpmon_%s" % nc,
-                description='Check NTPmon %s {%s}' % (nc, current_unit),
-                check_cmd='check_ntpmon.py --check %s' % nc
-            )
+            if len(nc) > 0:
+                nrpe_setup.add_check(
+                    shortname="ntpmon_%s" % nc,
+                    description='Check NTPmon %s {%s}' % (nc, current_unit),
+                    check_cmd='check_ntpmon.py --check %s' % nc
+                )
 
     nrpe_setup.write()
 

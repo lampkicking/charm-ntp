@@ -31,10 +31,10 @@ options:
         Options are "offset peers reachability sync"; if all are specified,
         they are combined into a single check; leave empty for no checks.
   auto_peers:
-    default: false
+    default: true
     type: boolean
     description: Will ntp auto peer between the environment
   use_iburst:
-    default: false
+    default: true
     type: boolean
     description: Use iburst for all servers, not just ntpmaster
