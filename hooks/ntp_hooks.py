@@ -86,7 +86,6 @@ def write_config():
                                  {'servers': remote_sources,
                                   'peers': remote_peers,
                                   }))
-    update_nrpe_config()
 
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
