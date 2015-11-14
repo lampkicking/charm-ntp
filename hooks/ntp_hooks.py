@@ -74,7 +74,8 @@ def write_config():
     remote_peers = get_sources(peers, iburst=use_iburst)
     auto_peers = hookenv.config('auto_peers')
     if hookenv.relation_ids('ntp-peers') and auto_peers:
-        remote_peers = get_sources(get_peer_nodes(), iburst=use_iburst, source_list=remote_peers)
+        remote_peers = get_sources(get_peer_nodes(), iburst=use_iburst,
+                source_list=remote_peers)
 
     if len(remote_sources) == 0 and len(remote_peers) == 0:
         # we have no peers/servers; restore default ntp.conf provided by OS
@@ -115,7 +116,8 @@ def update_nrpe_config():
     for c in allchecks:
         nrpe_setup.remove_check(shortname="ntpmon_%s" % c)
 
-    # if all checks are specified, combine them into a single check to reduce Nagios noise
+    # If all checks are specified, combine them into a single check to reduce
+    # Nagios noise.
     if set(nagios_ntpmon_checks) == allchecks:
         nrpe_setup.add_check(
             shortname="ntpmon",
