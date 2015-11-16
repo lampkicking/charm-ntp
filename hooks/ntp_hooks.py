@@ -75,7 +75,7 @@ def write_config():
     auto_peers = hookenv.config('auto_peers')
     if hookenv.relation_ids('ntp-peers') and auto_peers:
         remote_peers = get_sources(get_peer_nodes(), iburst=use_iburst,
-                source_list=remote_peers)
+                                   source_list=remote_peers)
 
     if len(remote_sources) == 0 and len(remote_peers) == 0:
         # we have no peers/servers; restore default ntp.conf provided by OS
