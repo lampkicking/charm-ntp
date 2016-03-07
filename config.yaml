@@ -22,7 +22,7 @@ options:
     type: string
     description: |
         A comma-separated list of nagios servicegroups.
-        If left empty, the nagios_context will be used as the servicegroup
+        If left empty, the nagios_context will be used as the servicegroup.
   nagios_ntpmon_checks:
     default: "offset peers reachability sync"
     type: string
@@ -31,10 +31,13 @@ options:
         Options are "offset peers reachability sync"; if all are specified,
         they are combined into a single check; leave empty for no checks.
   auto_peers:
-    default: true
+    default: false
     type: boolean
-    description: Will ntp auto peer between the environment
+    description:
+        Automatically peer with other units in the same service.
+        DEPRECATED.  Please consider using the ntpmaster charm to provide
+        sufficient peers for your environment in favour of auto_peers.
   use_iburst:
     default: true
     type: boolean
-    description: Use iburst for all servers, not just ntpmaster
+    description: Use iburst for all servers, not just ntpmaster.
