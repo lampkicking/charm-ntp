@@ -478,9 +478,10 @@ def main():
     parser = argparse.ArgumentParser(
         description='Nagios NTP check incorporating the logic of NTPmon')
     parser.add_argument(
-        '--check',
+        '--checks',
         choices=methodnames,
-        help='Select check to run; if omitted, run all checks and return the worst result.')
+        nargs='*',
+        help='Space seperated list of checks to run; if omitted, run all checks.')
     parser.add_argument(
         '--debug',
         action='store_true',
@@ -530,17 +531,16 @@ def main():
     methods = [ntp.check_offset, ntp.check_peers, ntp.check_reachability,
                ntp.check_sync]
     checkmethods = dict(zip(methodnames, methods))
+    methods_to_run = []
 
     # if check argument is specified, run just that check
-    ret = 0
-    if checkmethods.get(args.check):
-        method = checkmethods[args.check]
-        ret = method()
-    # else check all the methods
+    if args.checks:
+        for c in args.checks:
+            methods_to_run.append(checkmethods[c])
     else:
-        ret = ntp.checks()
+        methods_to_run = methods
 
-    sys.exit(ret)
+    sys.exit(ntp.checks(methods=methods_to_run))
 
 
 if __name__ == "__main__":
