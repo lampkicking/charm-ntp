@@ -107,7 +107,6 @@ def update_nrpe_config():
     hostname = nrpe.get_nagios_hostname()
     current_unit = nrpe.get_nagios_unit_name()
     nrpe_setup = nrpe.NRPE(hostname=hostname)
-    nrpe.add_init_service_checks(nrpe_setup, ['ntp'], current_unit)
 
     allchecks = set(['offset', 'peers', 'reachability', 'sync'])
 

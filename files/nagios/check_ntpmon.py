@@ -506,8 +506,8 @@ def main():
     lines = NTPPeers.query() if not args.test else [x.rstrip() for x in sys.stdin.readlines()]
     if lines is None:
         # Unknown result
-        print "UNKNOWN: Cannot get peers from ntpq.  Please check that an NTP server is installed and running."
-        sys.exit(3)
+        print "CRITICAL: Cannot get peers from ntpq.  Please check that an NTP server is installed and running."
+        sys.exit(2)
 
     # Don't report anything other than OK until ntpd has been running for at
     # least enough time for 8 polling intervals of 64 seconds each.
