@@ -127,7 +127,7 @@ def update_nrpe_config():
         nrpe_setup.add_check(
             shortname="ntpmon",
             description='Check NTPmon {}'.format(current_unit),
-            check_cmd='check_ntpmon.py --checks ' + nagios_ntpmon_checks
+            check_cmd='check_ntpmon.py --checks ' + ' '.join(nagios_ntpmon_checks)
         )
 
     nrpe_setup.write()
