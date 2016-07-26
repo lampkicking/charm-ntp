@@ -223,10 +223,14 @@ class NTPPeers(object):
             self.ntpdata['offsetsyncpeer'] = offset
             self.ntpdata['survivors'] += 1
             self.ntpdata['offsetsurvivors'] += offset
-        elif tally in ['+', '#']:
+        elif tally in ['+']:
             # valid peer
             self.ntpdata['survivors'] += 1
             self.ntpdata['offsetsurvivors'] += offset
+        elif tally in ['#']:
+            # backup peer, because we have more than tos maxclock sources available
+            self.ntpdata['backups'] += 1
+            self.ntpdata['offsetbackups'] += offset
         elif tally in [' ', 'x', '.', '-']:
             # discarded peer
             self.ntpdata['discards'] += 1
@@ -238,6 +242,8 @@ class NTPPeers(object):
 
     def __init__(self, peerlines, check=None):
         self.ntpdata = {
+            'backups': 0,
+            'offsetbackups': 0,
             'survivors': 0,
             'offsetsurvivors': 0,
             'discards': 0,
@@ -286,6 +292,8 @@ class NTPPeers(object):
             self.ntpdata['averageoffsetsurvivors'] = self.ntpdata['offsetsurvivors'] / self.ntpdata['survivors']
         if self.ntpdata['discards'] > 0:
             self.ntpdata['averageoffsetdiscards'] = self.ntpdata['offsetdiscards'] / self.ntpdata['discards']
+        if self.ntpdata['backups'] > 0:
+            self.ntpdata['averageoffsetbackups'] = self.ntpdata['offsetbackups'] / self.ntpdata['backups']
 
         if self.ntpdata['peers'] > 0:
             # precent average reachability of all peers over the last 8 polls
@@ -299,20 +307,24 @@ class NTPPeers(object):
             self.ntpdata['reachability'] = 0.0
             self.ntpdata['averageoffset'] = float('nan')
 
+    def dumppart(self, peertype, peertypeoffset, displaytype):
+        if self.ntpdata[peertype] > 0:
+            print "%d %s peers, average offset %g ms" % (
+                self.ntpdata[peertype],
+                displaytype,
+                self.ntpdata[peertypeoffset],
+            )
+
     def dump(self):
         if self.ntpdata.get('syncpeer'):
             print "Synced to: %s, offset %g ms" % (
                 self.ntpdata['syncpeer'], self.ntpdata['offsetsyncpeer'])
         else:
             print "No remote sync peer"
-        print "%d total peers, average offset %g ms" % (
-            self.ntpdata['peers'], self.ntpdata['averageoffset'])
-        if self.ntpdata['survivors'] > 0:
-            print "%d good peers, average offset %g ms" % (
-                self.ntpdata['survivors'], self.ntpdata['averageoffsetsurvivors'])
-        if self.ntpdata['discards'] > 0:
-            print "%d discarded peers, average offset %g ms" % (
-                self.ntpdata['discards'], self.ntpdata['averageoffsetdiscards'])
+        self.dumppart('peers', 'averageoffset', 'total')
+        self.dumppart('survivors', 'averageoffsetsurvivors', 'good')
+        self.dumppart('backups', 'averageoffsetbackups', 'backup')
+        self.dumppart('discards', 'averageoffsetdiscards', 'discarded')
         print "Average reachability of all peers: %d%%" % (
             self.ntpdata['reachability'])
 
@@ -341,8 +353,10 @@ class NTPPeers(object):
             result = check.offset(self.ntpdata['averageoffsetdiscards'])
             msg = "WARNING: No sync peer or survivors - used discard offsets"
             if check.is_silent():
-                return [1 if result[0] < 1 else result[0],
-                          msg + " (" + result[1] + ")"]
+                return [
+                    1 if result[0] < 1 else result[0],
+                    msg + " (" + result[1] + ")"
+                ]
             else:
                 print msg
                 return 1 if result < 1 else result
@@ -478,9 +492,10 @@ def main():
     parser = argparse.ArgumentParser(
         description='Nagios NTP check incorporating the logic of NTPmon')
     parser.add_argument(
-        '--check',
+        '--checks',
         choices=methodnames,
-        help='Select check to run; if omitted, run all checks and return the worst result.')
+        nargs='*',
+        help='Space separated list of checks to run; if omitted, run all checks.')
     parser.add_argument(
         '--debug',
         action='store_true',
@@ -506,8 +521,8 @@ def main():
     lines = NTPPeers.query() if not args.test else [x.rstrip() for x in sys.stdin.readlines()]
     if lines is None:
         # Unknown result
-        print "UNKNOWN: Cannot get peers from ntpq.  Please check that an NTP server is installed and running."
-        sys.exit(3)
+        print "CRITICAL: Cannot get peers from ntpq.  Please check that an NTP server is installed and running."
+        sys.exit(2)
 
     # Don't report anything other than OK until ntpd has been running for at
     # least enough time for 8 polling intervals of 64 seconds each.
@@ -530,17 +545,16 @@ def main():
     methods = [ntp.check_offset, ntp.check_peers, ntp.check_reachability,
                ntp.check_sync]
     checkmethods = dict(zip(methodnames, methods))
+    methods_to_run = []
 
     # if check argument is specified, run just that check
-    ret = 0
-    if checkmethods.get(args.check):
-        method = checkmethods[args.check]
-        ret = method()
-    # else check all the methods
+    if args.checks:
+        for c in args.checks:
+            methods_to_run.append(checkmethods[c])
     else:
-        ret = ntp.checks()
+        methods_to_run = methods
 
-    sys.exit(ret)
+    sys.exit(ntp.checks(methods=methods_to_run))
 
 
 if __name__ == "__main__":

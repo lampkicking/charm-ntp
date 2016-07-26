@@ -107,7 +107,6 @@ def update_nrpe_config():
     hostname = nrpe.get_nagios_hostname()
     current_unit = nrpe.get_nagios_unit_name()
     nrpe_setup = nrpe.NRPE(hostname=hostname)
-    nrpe.add_init_service_checks(nrpe_setup, ['ntp'], current_unit)
 
     allchecks = set(['offset', 'peers', 'reachability', 'sync'])
 
@@ -125,13 +124,11 @@ def update_nrpe_config():
             check_cmd='check_ntpmon.py'
         )
     else:
-        for nc in nagios_ntpmon_checks:
-            if len(nc) > 0:
-                nrpe_setup.add_check(
-                    shortname="ntpmon_%s" % nc,
-                    description='Check NTPmon %s {%s}' % (nc, current_unit),
-                    check_cmd='check_ntpmon.py --check %s' % nc
-                )
+        nrpe_setup.add_check(
+            shortname="ntpmon",
+            description='Check NTPmon {}'.format(current_unit),
+            check_cmd='check_ntpmon.py --checks ' + ' '.join(nagios_ntpmon_checks)
+        )
 
     nrpe_setup.write()
 
