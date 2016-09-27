@@ -91,6 +91,8 @@ def write_config():
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
 
+    hookenv.status_set('active', 'ready')
+
 
 @hooks.hook('nrpe-external-master-relation-joined',
             'nrpe-external-master-relation-changed')
