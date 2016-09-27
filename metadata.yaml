@@ -1,6 +1,6 @@
 name: ntp
 subordinate: true
-maintainer: James Page <james.page@ubuntu.com>
+maintainer: NTP Charm Maintainers <ntp-team@lists.launchpad.net>
 summary: Network Time Protocol
 description: |
   NTP, the Network Time Protocol, is used to keep computer clocks accurate
