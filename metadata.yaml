@@ -11,7 +11,10 @@ description: |
   This charm can be deployed alongside principle charms to enable NTP
   management across deployed services.
 tags:
-    - misc
+  - misc
+series:
+  - xenial
+  - trusty
 provides:
   nrpe-external-master:
     interface: nrpe-external-master
