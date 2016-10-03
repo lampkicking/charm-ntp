@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 import charmhelpers.core.hookenv as hookenv
@@ -42,7 +42,7 @@ def get_sources(sources, iburst=True, source_list=None):
         source_list = []
     if sources:
         # allow both strings and lists
-        if isinstance(sources, basestring):
+        if isinstance(sources, str):
             sources = sources.split(" ")
         for s in sources:
             if len(s) > 0:
