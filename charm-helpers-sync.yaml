@@ -1,6 +1,7 @@
 branch: lp:charm-helpers
 destination: hooks/charmhelpers
 include:
+    - osplatform
     - core
     - fetch
     - contrib.templating.jinja
