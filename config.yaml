@@ -2,11 +2,17 @@ options:
   source:
     default: ""
     type: string
-    description: Space separated list of NTP servers to use as source for time.
+    description: >
+        Space-separated list of NTP servers to use as sources for time.
+        Servers are added using the 'pool' directive to allow recent ntp
+        versions to automatically drop poor quality sources from the
+        running configuration and select new ones from the pool.
   peers:
     default: ""
     type: string
-    description: Space separated list of NTP servers to use as peers for time.
+    description: >
+        Space-separated list of NTP servers to use as peers for time.
+        Peers are allowed to query the local NTP server via ntpq.
   nagios_context:
     default: "juju"
     type: string
@@ -20,24 +26,26 @@ options:
   nagios_servicegroups:
     default: ""
     type: string
-    description: |
+    description: >
         A comma-separated list of nagios servicegroups.
         If left empty, the nagios_context will be used as the servicegroup.
   nagios_ntpmon_checks:
     default: "offset peers reachability sync"
     type: string
-    description: |
+    description: >
         A space-separated list of nagios ntpmon checks to enable.
         Options are "offset peers reachability sync"; if all are specified,
         they are combined into a single check; leave empty for no checks.
   auto_peers:
     default: false
     type: boolean
-    description:
+    description: >
         Automatically peer with other units in the same service.
         DEPRECATED.  Please consider using the ntpmaster charm to provide
         sufficient peers for your environment in favour of auto_peers.
   use_iburst:
     default: true
     type: boolean
-    description: Use iburst for all servers, not just ntpmaster.
+    description: >
+        Use iburst for all peers/sources, not just those received via the
+        master relation.
