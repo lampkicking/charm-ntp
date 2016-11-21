@@ -61,6 +61,7 @@ def get_sources(sources, iburst=True, source_list=None):
             'ntp-peers-relation-changed')
 @host.restart_on_change({NTP_CONF: ['ntp']})
 def write_config():
+    hookenv.open_port(123, protocol="UDP")
     use_iburst = hookenv.config('use_iburst')
     source = hookenv.config('source')
     remote_sources = get_sources(source, iburst=use_iburst)
