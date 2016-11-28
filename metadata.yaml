@@ -25,6 +25,9 @@ requires:
     scope: container
   master:
     interface: ntp
+provides:
+  ntpmaster:
+    interface: ntp
 peers:
   ntp-peers:
     interface: ntp
