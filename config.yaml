@@ -4,9 +4,6 @@ options:
     type: string
     description: >
         Space-separated list of NTP servers to use as sources for time.
-        Servers are added using the 'pool' directive to allow recent ntp
-        versions to automatically drop poor quality sources from the
-        running configuration and select new ones from the pool.
   peers:
     default: ""
     type: string
