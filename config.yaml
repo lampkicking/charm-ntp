@@ -10,6 +10,16 @@ options:
     description: >
         Space-separated list of NTP servers to use as peers for time.
         Peers are allowed to query the local NTP server via ntpq.
+  orphan_stratum:
+    default: 6
+    type: int
+    description: >
+        The NTP stratum at which ntp most lose connectivity to before it 
+        considers itself orphaned, and starts communicating with local peers.
+        The default value of 6 will enable orphaned operation when there are
+        no stratum 6 servers or servers of a higher stratum available, which is
+        two stratum below most internet NTP hosts.
+        Set to 0 to disable orphan mode entirely.
   nagios_context:
     default: "juju"
     type: string

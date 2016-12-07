@@ -64,6 +64,7 @@ def write_config():
     hookenv.open_port(123, protocol="UDP")
     use_iburst = hookenv.config('use_iburst')
     source = hookenv.config('source')
+    orphan_stratum = hookenv.config('orphan_stratum')
     remote_sources = get_sources(source, iburst=use_iburst)
     for relid in hookenv.relation_ids('master'):
         for unit in hookenv.related_units(relid=relid):
@@ -84,10 +85,11 @@ def write_config():
     else:
         # otherwise, write our own configuration
         with open(NTP_CONF, "w") as ntpconf:
-            ntpconf.write(render(os.path.basename(NTP_CONF),
-                                 {'servers': remote_sources,
-                                  'peers': remote_peers,
-                                  }))
+            ntpconf.write(render(os.path.basename(NTP_CONF), {
+                'orphan_stratum': orphan_stratum,
+                'peers': remote_peers,
+                'servers': remote_sources,
+            }))
 
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
