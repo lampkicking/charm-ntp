@@ -19,14 +19,13 @@ provides:
   nrpe-external-master:
     interface: nrpe-external-master
     scope: container
+  ntpmaster:
+    interface: ntp
 requires:
   juju-info:
     interface: juju-info
     scope: container
   master:
-    interface: ntp
-provides:
-  ntpmaster:
     interface: ntp
 peers:
   ntp-peers:
