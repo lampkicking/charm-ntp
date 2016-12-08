@@ -43,7 +43,7 @@ def get_sources(sources, iburst=True, source_list=None):
     if sources:
         # allow both strings and lists
         if isinstance(sources, str):
-            sources = sources.split(" ")
+            sources = sources.split()
         for s in sources:
             if len(s) > 0:
                 if iburst:
@@ -66,6 +66,8 @@ def write_config():
     source = hookenv.config('source')
     orphan_stratum = hookenv.config('orphan_stratum')
     remote_sources = get_sources(source, iburst=use_iburst)
+    pools = hookenv.config('pools')
+    remote_pools = get_sources(pools, iburst=use_iburst)
     for relid in hookenv.relation_ids('master'):
         for unit in hookenv.related_units(relid=relid):
             u_addr = hookenv.relation_get(attribute='private-address',
@@ -79,8 +81,8 @@ def write_config():
         remote_peers = get_sources(get_peer_nodes(), iburst=use_iburst,
                                    source_list=remote_peers)
 
-    if len(remote_sources) == 0 and len(remote_peers) == 0:
-        # we have no peers/servers; restore default ntp.conf provided by OS
+    if len(remote_sources) == 0 and len(remote_peers) == 0 and len(remote_pools) == 0:
+        # we have no peers/pools/servers; restore default ntp.conf provided by OS
         shutil.copy(NTP_CONF_ORIG, NTP_CONF)
     else:
         # otherwise, write our own configuration
@@ -88,6 +90,7 @@ def write_config():
             ntpconf.write(render(os.path.basename(NTP_CONF), {
                 'orphan_stratum': orphan_stratum,
                 'peers': remote_peers,
+                'pools': remote_pools,
                 'servers': remote_sources,
             }))
 
@@ -102,7 +105,7 @@ def update_nrpe_config():
     # python-dbus is used by check_upstart_job
     # python-psutil is used by check_ntpmon
     fetch.apt_install(['python-dbus', 'python-psutil'])
-    nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks').split(" ")
+    nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks').split()
     if os.path.isdir(NAGIOS_PLUGINS):
         host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
                    'check_ntpmon.py'),
@@ -110,7 +113,7 @@ def update_nrpe_config():
 
     hostname = nrpe.get_nagios_hostname()
     current_unit = nrpe.get_nagios_unit_name()
-    nrpe_setup = nrpe.NRPE(hostname=hostname)
+    nrpe_setup = nrpe.NRPE(hostname=hostname, primary=False)
 
     allchecks = set(['offset', 'peers', 'reachability', 'sync'])
 
@@ -119,22 +122,12 @@ def update_nrpe_config():
     for c in allchecks:
         nrpe_setup.remove_check(shortname="ntpmon_%s" % c)
 
-    # If all checks are specified, combine them into a single check to reduce
-    # Nagios noise.
-    if set(nagios_ntpmon_checks) == allchecks:
-        nrpe_setup.add_check(
-            shortname="ntpmon",
-            description='Check NTPmon {}'.format(current_unit),
-            check_cmd='check_ntpmon.py'
-        )
-    else:
-        nrpe_setup.add_check(
-            shortname="ntpmon",
-            description='Check NTPmon {}'.format(current_unit),
-            check_cmd=('check_ntpmon.py --checks ' +
-                       ' '.join(nagios_ntpmon_checks))
-        )
-
+    nrpe_setup.add_check(
+        shortname="ntpmon",
+        description='Check NTPmon {}'.format(current_unit),
+        check_cmd=('check_ntpmon.py --checks ' +
+                   ' '.join(nagios_ntpmon_checks))
+    )
     nrpe_setup.write()
 
 

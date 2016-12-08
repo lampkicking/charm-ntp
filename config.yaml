@@ -10,6 +10,18 @@ options:
     description: >
         Space-separated list of NTP servers to use as peers for time.
         Peers are allowed to query the local NTP server via ntpq.
+  pools:
+    default: >
+        0.ubuntu.pool.ntp.org
+        1.ubuntu.pool.ntp.org
+        2.ubuntu.pool.ntp.org
+        3.ubuntu.pool.ntp.org
+        ntp.ubuntu.com
+    type: string
+    description: >
+        Space-separated list of NTP servers to use as pool sources for
+        time.  Pool sources are recommended over normal sources for their
+        self-healing capabilities. Leave empty to disable pool sources.
   orphan_stratum:
     default: 6
     type: int
@@ -17,8 +29,8 @@ options:
         The NTP stratum at which ntp most lose connectivity to before it 
         considers itself orphaned, and starts communicating with local peers.
         The default value of 6 will enable orphaned operation when there are
-        no stratum 6 servers or servers of a higher stratum available, which is
-        two stratum below most internet NTP hosts.
+        no stratum 6 servers or servers of a higher stratum available, which
+        is two strata below most Internet NTP hosts.
         Set to 0 to disable orphan mode entirely.
   nagios_context:
     default: "juju"
