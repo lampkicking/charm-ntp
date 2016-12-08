@@ -93,6 +93,7 @@ def write_config():
 
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
+    assess_status()
 
 
 @hooks.hook('nrpe-external-master-relation-joined',
@@ -137,6 +138,7 @@ def update_nrpe_config():
     nrpe_setup.write()
 
 
+@hooks.hook('update-status')
 def assess_status():
     hookenv.application_version_set(
         fetch.get_upstream_version('ntp')
@@ -152,4 +154,3 @@ if __name__ == '__main__':
         hooks.execute(sys.argv)
     except UnregisteredHookError as e:
         hookenv.log('Unknown hook {} - skipping.'.format(e))
-    assess_status()
