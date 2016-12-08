@@ -38,14 +38,13 @@ To disable the default list of pool servers, set that to the empty string:
 
 Sources, peers, and pools should be space separated.
 
-When you need a set of services to keep close time to each other, it may
-be useful to have them automatically peer with each other.  This means
-any set of services which use the same ntp subordinate will peer together.
+If you have a large number of nodes which need to keep close sync with one
+another but need to keep upstream traffic to a minimum, try auto_peers:
 
     juju set ntp auto_peers=true
 
-This will add all the hosts as peers to each other.  Using auto_peers is not
-recommended when more than 10 units are expected to be deployed.
+This will select the most suitable units for connecting with upstream, and
+configure the remaining units to receive time from those units.
 
 Mastered
 ========
