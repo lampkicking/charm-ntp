@@ -19,6 +19,8 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import print_function
+
 import argparse
 import unittest
 import sys
@@ -66,11 +68,24 @@ testdata = [
  218.189.210.3   .INIT.          16 u    -   64    0    0.000    0.000   0.000
  103.224.117.98  .INIT.          16 u    -   64    0    0.000    0.000   0.000
  118.143.17.82   .INIT.          16 u    -   64    0    0.000    0.000   0.000
- 91.189.89.199   192.93.2.20      2 u   21   64    7  336.631    0.913   0.223
+ 91.189.89.199   192.93.2.20      2 u   21   64  301  336.631    0.913   0.223
  175.45.85.97    .INIT.          16 u    -   64    0    0.000    0.000   0.000
  192.189.54.33   .INIT.          16 u    -   64    0    0.000    0.000   0.000
  129.250.35.250  .INIT.          16 u    -   64    0    0.000    0.000   0.000
  54.252.165.245  .INIT.          16 u    -   64    0    0.000    0.000   0.000
+""",
+"""
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+ 0.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.000
+ 1.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.000
+ 2.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.000
+ 3.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.000
+ ntp.ubuntu.com  .POOL.          16 p    -   64    0    0.000    0.000   0.000
++91.189.91.157   132.246.11.231   2 u  228  256  377  264.277    1.996  27.598
++218.189.210.3   118.143.17.82    2 u   42  256  377    3.297   -3.598   1.100
+ 209.58.185.100  130.133.1.10     2 u   62   64    3    2.237   28.653   0.088
+ 203.95.213.129  193.62.22.74     2 u   67   64    3    4.002   -1.256   0.041
 """,
 ]
 
@@ -342,6 +357,32 @@ class TestCheckNTPMon(unittest.TestCase):
         self.assertEqual(ntp.check_peers(), 2, 'Low peers non-critical')
         self.assertEqual(ntp.check_reachability(), 2, 'Low reachability non-critical')
 
+    def test_NTPPeer4(self):
+        # check the parsing done by NTPPeers
+        ntp = NTPPeers(testdata[4].split("\n"))
+        self.assertEqual(ntp.ntpdata.get('syncpeer'), None)
+        self.assertEqual(ntp.ntpdata.get('offsetsyncpeer'), None)
+        self.assertEqual(ntp.ntpdata['survivors'], 2)
+        self.assertEqual(ntp.ntpdata.get('averageoffsetsurvivors'), 2.7969999999999997)
+        self.assertEqual(ntp.ntpdata['discards'], 2)
+        self.assertEqual(ntp.ntpdata['averageoffsetdiscards'], 14.9545)
+        self.assertEqual(ntp.ntpdata['peers'], 4)
+        self.assertEqual(ntp.ntpdata['averageoffset'], 8.87575)
+        self.assertEqual(ntp.ntpdata['reachability'], 62.5)
+
+        # run checks on the data
+        check = CheckNTPMon()
+        self.assertEqual(check.offset(ntp.ntpdata['averageoffsetdiscards']), 1, 'Discards offset non-warning')
+        self.assertEqual(check.offset(ntp.ntpdata['averageoffset']), 0, 'Offset non-OK')
+        self.assertEqual(check.peers(ntp.ntpdata['peers']), 0, 'Peers non-OK')
+        self.assertEqual(check.reachability(ntp.ntpdata['reachability']), 1, 'Reachability non-warning')
+
+        # run overall health checks
+        self.assertEqual(ntp.check_sync(), 1, 'Missing sync peer non-warning')
+        self.assertEqual(ntp.check_offset(), 0, 'Normal offset non-OK')
+        self.assertEqual(ntp.check_peers(), 0, 'OK peer count non-OK')
+        self.assertEqual(ntp.check_reachability(), 1, 'Low reachability non-critical')
+
     def test_defaults(self):
         c = CheckNTPMon()
         self.assertEqual(c.warnpeers, 2)
@@ -463,7 +504,7 @@ def demo():
     """Duplicate of test_demos which shows full output"""
     i = 0
     for d in demodata:
-        print "Parsing demo data %d: %s" % (i, d)
+        print("Parsing demo data %d: %s" % (i, d))
         ntp = NTPPeers(d.split("\n"))
         i += 1
         ntp.dump()
@@ -472,7 +513,7 @@ def demo():
         for method in methods:
             ret = method()
             if ret not in [0, 1, 2]:
-                print "Method %s returned invalid result parsing demo data:\n%s" % (method, d)
+                print("Method %s returned invalid result parsing demo data:\n%s" % (method, d))
                 sys.exit(3)
 
 

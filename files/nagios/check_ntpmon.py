@@ -19,6 +19,8 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import print_function
+
 import argparse
 import psutil
 import re
@@ -41,6 +43,15 @@ def isipaddressy(name):
     reports hostnames and IP addresses, so we can't be too strict.  This method simply tests
     that all of the characters in the string are hexadecimal digits, period, or colon."""
     return re.search(r'^[0-9a-f.:]*$', name) is not None
+
+
+def report_reachability(old, new):
+    if old > new:
+        return "decreasing"
+    elif new > old:
+        return "increasing"
+    else:
+        return "stable"
 
 
 class CheckNTPMonSilent(object):
@@ -109,12 +120,12 @@ class CheckNTPMonSilent(object):
         return True
 
     def dump(self):
-        print "warnpeers  = %d" % (self.warnpeers)
-        print "okpeers    = %d" % (self.okpeers)
-        print "warnoffset = %g" % (self.warnoffset)
-        print "critoffset = %g" % (self.critoffset)
-        print "warnreach  = %g" % (self.warnreach)
-        print "critreach  = %g" % (self.critreach)
+        print("warnpeers  = %d" % (self.warnpeers))
+        print("okpeers    = %d" % (self.okpeers))
+        print("warnoffset = %g" % (self.warnoffset))
+        print("critoffset = %g" % (self.critoffset))
+        print("warnreach  = %g" % (self.warnreach))
+        print("critreach  = %g" % (self.critreach))
 
     @classmethod
     def clone(cls, obj):
@@ -151,7 +162,7 @@ class CheckNTPMon(CheckNTPMonSilent):
         Return 1 if the number of peers is WARNING
         Return 2 if the number of peers is CRITICAL"""
         code, msg = CheckNTPMonSilent.peers(self, n)
-        print msg
+        print(msg)
         return code
 
     def offset(self, offset):
@@ -159,7 +170,7 @@ class CheckNTPMon(CheckNTPMonSilent):
         Return 1 if the offset is WARNING
         Return 2 if the offset is CRITICAL"""
         code, msg = CheckNTPMonSilent.offset(self, offset)
-        print msg
+        print(msg)
         return code
 
     def reachability(self, percent):
@@ -168,14 +179,14 @@ class CheckNTPMon(CheckNTPMonSilent):
         Return 2 if the reachability percentage is critical
         Raise a ValueError if reachability is not a percentage"""
         code, msg = CheckNTPMonSilent.reachability(self, percent)
-        print msg
+        print(msg)
         return code
 
     def sync(self, synchost):
         """Return 0 if the synchost is non-zero in length and is a roughly valid host identifier
         Return 2 otherwise"""
         code, msg = CheckNTPMonSilent.sync(self, synchost)
-        print msg
+        print(msg)
         return code
 
     def is_silent(self):
@@ -252,6 +263,8 @@ class NTPPeers(object):
             'peers': 0,
             'offsetall': 0,
             'totalreach': 0,
+            'oldreach': 0,
+            'newreach': 0,
         }
         self.check = check
 
@@ -284,8 +297,12 @@ class NTPPeers(object):
             # reachability - this counts the number of bits set in the reachability field
             # (which is displayed in octal in the ntpq output)
             # http://stackoverflow.com/questions/9829578/fast-way-of-counting-bits-in-python
-            self.ntpdata['totalreach'] += bin(int(peerdata['reach'],
-                                                  8)).count("1")
+            reachint = int(peerdata['reach'], 8)
+            self.ntpdata['totalreach'] += bin(reachint).count("1")
+
+            # count the 4 oldest & 4 newest polls
+            self.ntpdata['oldreach'] += bin((reachint >> 4) & 0x0f).count("1")
+            self.ntpdata['newreach'] += bin(reachint & 0x0f).count("1")
 
         # average offsets
         if self.ntpdata['survivors'] > 0:
@@ -309,24 +326,29 @@ class NTPPeers(object):
 
     def dumppart(self, peertype, peertypeoffset, displaytype):
         if self.ntpdata[peertype] > 0:
-            print "%d %s peers, average offset %g ms" % (
+            print("%d %s peers, average offset %g ms" % (
                 self.ntpdata[peertype],
                 displaytype,
                 self.ntpdata[peertypeoffset],
-            )
+            ))
 
     def dump(self):
         if self.ntpdata.get('syncpeer'):
-            print "Synced to: %s, offset %g ms" % (
-                self.ntpdata['syncpeer'], self.ntpdata['offsetsyncpeer'])
+            print("Synced to: %s, offset %g ms" % (
+                self.ntpdata['syncpeer'], self.ntpdata['offsetsyncpeer']))
         else:
-            print "No remote sync peer"
+            print("No remote sync peer")
         self.dumppart('peers', 'averageoffset', 'total')
         self.dumppart('survivors', 'averageoffsetsurvivors', 'good')
         self.dumppart('backups', 'averageoffsetbackups', 'backup')
         self.dumppart('discards', 'averageoffsetdiscards', 'discarded')
-        print "Average reachability of all peers: %d%%" % (
-            self.ntpdata['reachability'])
+        print("Average reachability of all peers: %d%%" % (
+            self.ntpdata['reachability']))
+        print("Reachability is %s (%d vs %d)" % (
+            report_reachability(self.ntpdata['oldreach'], self.ntpdata['newreach']),
+            self.ntpdata['oldreach'],
+            self.ntpdata['newreach'],
+        ))
 
     def check_peers(self, check=None):
         """Check the number of usable peers"""
@@ -358,14 +380,14 @@ class NTPPeers(object):
                     msg + " (" + result[1] + ")"
                 ]
             else:
-                print msg
+                print(msg)
                 return 1 if result < 1 else result
         else:
             ret = [2, "CRITICAL: No peers for which to check offset"]
             if check.is_silent():
                 return ret
             else:
-                print ret[1]
+                print(ret[1])
                 return ret[0]
 
     def check_reachability(self, check=None):
@@ -379,11 +401,16 @@ class NTPPeers(object):
         if check is None:
             check = self.check if self.check else CheckNTPMon()
         if self.ntpdata.get('syncpeer') is None:
-            ret = [2, "CRITICAL: No sync peer"]
+            if self.ntpdata['oldreach'] < self.ntpdata['newreach']:
+                # reachability is improving, we should be in sync soon
+                ret = [1, "WARNING: No sync peer"]
+            else:
+                # reachability is decreasing or stable
+                ret = [2, "CRITICAL: No sync peer"]
             if check.is_silent():
                 return ret
             else:
-                print ret[1]
+                print(ret[1])
                 return ret[0]
         return check.sync(self.ntpdata['syncpeer'])
 
@@ -412,9 +439,9 @@ class NTPPeers(object):
                 msg = result[1]
 
         if msg is None:
-            print "%s returned no results - please report a bug" % (method)
+            print("%s returned no results - please report a bug" % (method))
             return 3
-        print msg
+        print(msg)
         return ret
 
     @staticmethod
@@ -521,14 +548,14 @@ def main():
     lines = NTPPeers.query() if not args.test else [x.rstrip() for x in sys.stdin.readlines()]
     if lines is None:
         # Unknown result
-        print "CRITICAL: Cannot get peers from ntpq.  Please check that an NTP server is installed and running."
+        print("CRITICAL: Cannot get peers from ntpq.  Please check that an NTP server is installed and running.")
         sys.exit(2)
 
     # Don't report anything other than OK until ntpd has been running for at
     # least enough time for 8 polling intervals of 64 seconds each.
     age = NTPProcess().runtime()
     if age > 0 and age <= args.run_time:
-        print "OK: ntpd still starting up (running %d seconds)" % age
+        print("OK: ntpd still starting up (running %d seconds)" % age)
         sys.exit(0)
 
     # initialise our object with the results of ntpq and our preferred check
@@ -536,7 +563,7 @@ def main():
     ntp = NTPPeers(lines, checkntpmon)
 
     if args.debug:
-        print "\n".join(lines)
+        print("\n".join(lines))
         checkntpmon.dump()
         ntp.dump()
 
