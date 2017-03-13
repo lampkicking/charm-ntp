@@ -8,7 +8,7 @@ description: |
   following an accurate hardware receiver that interprets GPS, DCF-77,
   NIST or similar time signals.
   .
-  This charm can be deployed alongside principle charms to enable NTP
+  This charm can be deployed alongside principal charms to enable NTP
   management across deployed services.
 tags:
   - misc

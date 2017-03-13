@@ -131,13 +131,87 @@ def update_nrpe_config():
     nrpe_setup.write()
 
 
+# Hyper-V host clock sync handling - workaround until https://bugs.launchpad.net/bugs/1676635 is SRUed for xenial
+# See also:
+# - https://patchwork.kernel.org/patch/9525945/
+# - https://social.msdn.microsoft.com/Forums/en-US/8c0a1026-0b02-405a-848e-628e68229eaf/i-have-a-lot-of-time-has-been-changed-in-the-journal-of-my-linux-boxes?forum=WAVirtualMachinesforWindows
+_device_class = '9527e630-d0ae-497b-adce-e80ab0175caf'
+_vmbus_dir = '/sys/bus/vmbus/'
+
+
+def find_hyperv_host_sync_device():
+    """Search for a vmbus device directory whose class matches _device_class"""
+    try:
+        for d in os.listdir(os.path.join(_vmbus_dir, 'devices')):
+            try:
+                f = open(os.path.join(_vmbus_dir, 'devices', d, 'class_id'), 'r')
+                if _device_class in f.readline():
+                    hookenv.log('Hyper-V host time sync device is {}'.format(f.name), level=hookenv.DEBUG)
+                    return d
+            except:
+                pass
+    except:
+        pass
+    return None
+
+
+def check_hyperv_host_sync(device_id):
+    """Check if Hyper-V host clock sync is enabled"""
+    statefile = os.path.join(_vmbus_dir, 'devices', device_id, 'state')
+    if os.path.exists(statefile):
+        try:
+            f = open(statefile, 'r')
+            firstline = f.readline().strip()
+            result = firstline == '3'
+            enabled = 'enabled' if result else 'disabled'
+            hookenv.log('Hyper-V host time sync is ' + enabled, level=hookenv.DEBUG)
+            if result:
+                return device_id
+            else:
+                return None
+        except:
+            hookenv.log('Hyper-V host time sync status file {} not found'.format(statefile), level=hookenv.DEBUG)
+            return None
+    else:
+        return None
+
+
+def disable_hyperv_host_sync(device_id):
+    """Unbind the Hyper-V host clock sync driver"""
+    try:
+        hookenv.log('Disabling Hyper-V host time sync', level=hookenv.DEBUG)
+        path = os.path.join(_vmbus_dir, 'drivers', 'hv_util', 'unbind')
+        f = open(path, 'w')
+        print(device_id, file=f)
+        return True
+    except:
+        return False
+
+
+def hyperv_sync_status():
+    """Check Hyper-V host clock sync status; disable if detected.
+    Report a sensible status message if we attempted changes."""
+    device_id = find_hyperv_host_sync_device()
+    if device_id and check_hyperv_host_sync(device_id):
+        if disable_hyperv_host_sync(device_id):
+            return 'Hyper-V host sync disabled'
+        else:
+            return 'Failed to disable Hyper-V host sync'
+    else:
+        return None
+
+
 @hooks.hook('update-status')
 def assess_status():
     hookenv.application_version_set(
         fetch.get_upstream_version('ntp')
     )
     if host.service_running('ntp'):
-        hookenv.status_set('active', 'Unit is ready')
+        status = 'Unit is ready'
+        status_extra = hyperv_sync_status()
+        if status_extra:
+            status = status + '; ' + status_extra
+        hookenv.status_set('active', status)
     else:
         hookenv.status_set('blocked', 'ntp not running')
 
