@@ -452,7 +452,7 @@ class NTPPeers(object):
             output = subprocess.check_output(["ntpq", "-pn"], stderr=null)
             if len(output) > 0:
                 lines = output.split("\n")
-        except:
+        except Exception:
             traceback.print_exc(file=sys.stdout)
         return lines
 

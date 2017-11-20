@@ -39,7 +39,7 @@ except amulet.helpers.TimeoutError:
     message = 'The environment did not setup in %d seconds.' % seconds
     # The SKIP status enables skip or fail the test based on configuration.
     amulet.raise_status(amulet.SKIP, msg=message)
-except:
+except Exception:
     raise
 
 # Unable to get the sentry unit for ntp because it is a subordinate.

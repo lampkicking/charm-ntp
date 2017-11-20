@@ -59,9 +59,14 @@ options:
     default: false
     type: boolean
     description: >
-        Automatically peer with other units in the same service.
-        DEPRECATED.  Please consider using the ntpmaster charm to provide
-        sufficient peers for your environment in favour of auto_peers.
+        Automatically select the most appropriate units in the service to
+        be a service stratum connecting with upstream NTP servers, and use
+        those units as time sources for the remaining units.
+  auto_peers_upstream:
+    default: 6
+    type: int
+    description: >
+        How many units should attempt to connect with upstream NTP servers?
   use_iburst:
     default: true
     type: boolean
