@@ -1,0 +1,2 @@
+# juju-generated ntp startup configuration
+NTPD_OPTS='-g'
