@@ -1,6 +1,7 @@
 #!/usr/bin/make
 PYTHON := /usr/bin/env PYTHONPATH=$(PWD)/hooks python3
 CHARM_NAME := ntp
+CS_CHANNEL := candidate
 CSDEST := cs:~$(LOGNAME)/$(CHARM_NAME)
 
 test:
@@ -24,7 +25,7 @@ git:
 
 cspush: lint
 	version=`charm push . $(CSDEST) | awk '/^url:/ {print $$2}'` && \
-	    charm release $$version
+	    charm release --channel $(CS_CHANNEL) $$version
 
 upgrade: cspush
 	juju upgrade-charm $(CHARM_NAME)
