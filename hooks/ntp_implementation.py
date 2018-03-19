@@ -16,7 +16,7 @@ class NTPImplementation:
     """Base class for NTP implementations."""
 
     def config_file(self):
-        pass
+        raise NotImplementedError
 
     def _config_file_backup(self):
         return self.config_file() + ".bak"
@@ -25,10 +25,10 @@ class NTPImplementation:
         return self.config_file() + ".orig"
 
     def _config_file_template(self):
-        pass
+        raise NotImplementedError
 
     def package_name(self):
-        pass
+        raise NotImplementedError
 
     def packages_to_install(self):
         return [self.package_name()]
@@ -44,7 +44,7 @@ class NTPImplementation:
             shutil.copy(self.config_file(), backup)
 
     def service_name(self):
-        pass
+        raise NotImplementedError
 
     def set_config(self, config):
         with open(self.config_file(), "w") as conffile:
@@ -55,10 +55,10 @@ class NTPImplementation:
             startup.write(templating.render(self._startup_template_file(), config))
 
     def _startup_config_file(self):
-        pass
+        raise NotImplementedError
 
     def _startup_template_file(self):
-        pass
+        raise NotImplementedError
 
 
 class Chronyd(NTPImplementation):
@@ -107,9 +107,10 @@ class NTPd(NTPImplementation):
 
 
 def get_implementation(implementation_name=None):
-    if implementation_name.lower() == 'chrony':
+    """Select the appropriate NTP implementation for this platform."""
+    if implementation_name is not None and implementation_name.lower() == 'chrony':
         return Chronyd()
-    if implementation_name.lower() == 'ntpd':
+    if implementation_name is not None and implementation_name.lower() == 'ntpd':
         return NTPd()
 
     # anything else: auto mode

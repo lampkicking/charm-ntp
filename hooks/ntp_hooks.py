@@ -12,7 +12,7 @@ import ntp_scoring
 NAGIOS_PLUGINS = '/usr/local/lib/nagios/plugins'
 
 hooks = hookenv.Hooks()
-implementation = ntp_implementation.get_implementation(hookenv.config('ntp_implementation'))
+implementation = ntp_implementation.get_implementation()
 
 
 def get_peer_sources(topN=6):

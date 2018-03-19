@@ -75,14 +75,3 @@ options:
     description: >
         Use iburst for all peers/sources, not just those received via the
         master relation.
-  ntp_implementation:
-    default: auto
-    type: string
-    description: >
-        Select the NTP implementation to use. Options are: auto, chronyd, and
-        ntpd.  If auto is selected, the charm will determine the default
-        implementation for the release on which it is deployed.  As at
-        Feb 2018, this is chronyd for Ubuntu 18.04 (bionic) and later, and
-        ntpd for earlier releases.  Use of ntpd from Ubuntu 18.04 onwards is
-        not recommended, since it no longer receives security support. Use of
-        chronyd prior to Ubuntu 18.04 is untested.
