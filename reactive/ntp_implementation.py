@@ -3,7 +3,7 @@
 # License: GPLv3
 # Author: Paul Gear
 
-# NTP implementation details
+"""NTP implementation details"""
 
 import charmhelpers.contrib.templating.jinja as templating
 import charmhelpers.core.host

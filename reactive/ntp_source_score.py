@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 # Copyright (c) 2017 Canonical Ltd
+# License: GPLv3
 # Author: Paul Gear
 
 # This module runs ntpdate in test mode against the provided list of sources

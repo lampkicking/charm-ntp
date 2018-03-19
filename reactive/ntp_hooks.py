@@ -4,14 +4,25 @@ from charmhelpers.contrib.charmsupport import nrpe
 from charmhelpers.core import hookenv, host, unitdata
 import charmhelpers.fetch as fetch
 import os
-import sys
 
+from charms.reactive import (
+    main,
+    remove_state,
+    set_state,
+)
+
+from charms.reactive.decorators import (
+    hook,
+    when,
+    when_not,
+)
+
+import ntp_hyperv
 import ntp_implementation
 import ntp_scoring
 
 NAGIOS_PLUGINS = '/usr/local/lib/nagios/plugins'
 
-hooks = hookenv.Hooks()
 implementation = ntp_implementation.get_implementation()
 
 
@@ -25,11 +36,13 @@ def get_peer_sources(topN=6):
     """
     if topN is None:
         topN = 6
+    hookenv.status_set('maintentance', 'Retrieving suitability score')
     ourscore = ntp_scoring.get_score()
     if ourscore is None:
         hookenv.log('[AUTO_PEER] Our score cannot be determined - check logs for reason')
         return None
 
+    hookenv.status_set('maintentance', 'Retrieving peer suitability scores')
     peers = []
     for relid in hookenv.relation_ids('ntp-peers'):
         hookenv.relation_set(relation_id=relid, relation_settings={'score': ourscore['score']})
@@ -58,14 +71,6 @@ def get_peer_sources(topN=6):
         return map(lambda x: x[0], topNhosts)
 
 
-@hooks.hook('install')
-def install():
-    fetch.apt_update(fatal=True)
-    ntp_scoring.install_packages()
-    fetch.apt_install(implementation.packages_to_install(), fatal=True)
-    implementation.save_config()
-
-
 def get_sources(sources, iburst=True, source_list=None):
     if source_list is None:
         source_list = []
@@ -82,16 +87,38 @@ def get_sources(sources, iburst=True, source_list=None):
     return source_list
 
 
-@hooks.hook('upgrade-charm')
-@hooks.hook('config-changed')
-@hooks.hook('master-relation-changed')
-@hooks.hook('master-relation-departed')
-@hooks.hook('ntp-peers-relation-joined',
-            'ntp-peers-relation-changed')
+@when_not('ntp.installed')
+def install():
+    hookenv.status_set('maintentance', 'Updating package database')
+    fetch.apt_update(fatal=True)
+
+    pkgs = ntp_scoring.packages_to_install()
+    hookenv.status_set('maintentance', 'Installing ' + ', '.join(pkgs))
+    fetch.apt_install(pkgs, fatal=False)
+
+    pkgs = implementation.packages_to_install()
+    hookenv.status_set('maintentance', 'Installing ' + ', '.join(pkgs))
+    fetch.apt_install(pkgs, fatal=True)
+
+    implementation.save_config()
+    hookenv.status_set('active', 'Installed required packages')
+    set_state('ntp.installed')
+
+
+@hook('upgrade-charm')
+@hook('master-relation-changed')
+@hook('master-relation-departed')
+@hook('ntp-peers-relation-joined')
+@hook('ntp-peers-relation-changed')
+@when('config.changed')
+def reconfigure():
+    remove_state('ntp.configured')
+
+
+@when('ntp.installed')
+@when_not('ntp.configured')
 @host.restart_on_change({implementation.config_file(): [implementation.service_name()]})
 def write_config():
-    ntp_scoring.install_packages()
-
     if ntp_scoring.get_virt_type() == 'container':
         is_container = 1
     else:
@@ -116,10 +143,9 @@ def write_config():
     remote_peers = get_sources(peers, iburst=use_iburst)
 
     kv = unitdata.kv()
-    hookenv.atexit(kv.flush)
 
     if hookenv.relation_ids('master'):
-        # use master relation only
+        # use master relation in addition to configured sources
         for relid in hookenv.relation_ids('master'):
             for unit in hookenv.related_units(relid=relid):
                 u_addr = hookenv.relation_get(attribute='private-address',
@@ -154,13 +180,17 @@ def write_config():
             'servers': remote_sources,
         })
 
+    # FIXME: remove
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
+
+    remove_state('ntp.configured')
     assess_status()
 
 
-@hooks.hook('nrpe-external-master-relation-joined',
-            'nrpe-external-master-relation-changed')
+# FIXME: move to ntpmon layer
+@hook('nrpe-external-master-relation-joined')
+@hook('nrpe-external-master-relation-changed')
 def update_nrpe_config():
     # python-dbus is used by check_upstart_job
     # python-psutil is used by check_ntpmon
@@ -191,120 +221,42 @@ def update_nrpe_config():
     nrpe_setup.write()
 
 
-# Hyper-V host clock sync handling - workaround until https://bugs.launchpad.net/bugs/1676635 is SRUed for xenial
-# See also:
-# - https://patchwork.kernel.org/patch/9525945/
-# - https://social.msdn.microsoft.com/Forums/en-US/8c0a1026-0b02-405a-848e-628e68229eaf/i-have-a-lot-of-time-has-been-changed-in-the-journal-of-my-linux-boxes?forum=WAVirtualMachinesforWindows # NOQA: E501
-_device_class = '9527e630-d0ae-497b-adce-e80ab0175caf'
-_vmbus_dir = '/sys/bus/vmbus/'
-
-
-def find_hyperv_host_sync_device():
-    """Search for a vmbus device directory whose class matches _device_class"""
-    try:
-        for d in os.listdir(os.path.join(_vmbus_dir, 'devices')):
-            try:
-                f = open(os.path.join(_vmbus_dir, 'devices', d, 'class_id'), 'r')
-                if _device_class in f.readline():
-                    hookenv.log('Hyper-V host time sync device is {}'.format(f.name))
-                    return d
-            except Exception:
-                pass
-    except Exception:
-        pass
-    return None
-
-
-def check_hyperv_host_sync(device_id):
-    """Check if Hyper-V host clock sync is enabled"""
-    statefile = os.path.join(_vmbus_dir, 'devices', device_id, 'state')
-    if os.path.exists(statefile):
-        try:
-            f = open(statefile, 'r')
-            firstline = f.readline().strip()
-            result = firstline == '3'
-            enabled = 'enabled' if result else 'disabled'
-            hookenv.log('Hyper-V host time sync is ' + enabled)
-            if result:
-                return device_id
-            else:
-                return None
-        except Exception:
-            hookenv.log('Hyper-V host time sync status file {} not found'.format(statefile))
-            return None
-    else:
-        return None
-
-
-def disable_hyperv_host_sync(device_id):
-    """Unbind the Hyper-V host clock sync driver"""
-    try:
-        hookenv.log('Disabling Hyper-V host time sync')
-        path = os.path.join(_vmbus_dir, 'drivers', 'hv_util', 'unbind')
-        f = open(path, 'w')
-        print(device_id, file=f)
-        return True
-    except Exception:
-        return False
-
-
-def hyperv_sync_status():
-    """Check Hyper-V host clock sync status; disable if detected.
-    Report a sensible status message if we attempted changes."""
-    device_id = find_hyperv_host_sync_device()
-    if device_id and check_hyperv_host_sync(device_id):
-        if disable_hyperv_host_sync(device_id):
-            return 'Hyper-V host sync disabled'
-        else:
-            return 'Failed to disable Hyper-V host sync'
-    else:
-        return None
-
-
-@hooks.hook('update-status')
+@hook('update-status')
 def assess_status():
     package = implementation.package_name()
     version = fetch.get_upstream_version(package)
     if version is not None:
         hookenv.application_version_set(version)
 
-    # base status
-    status = package + ': '
+    status = []
 
-    # append service status
+    # service status
     if host.service_running(implementation.service_name()):
         state = 'active'
-        status += 'Ready'
+        status.append('Ready')
     else:
         state = 'blocked'
-        status += 'Not running'
+        status.append('Not running')
 
-    # append container status
+    # container status
     if ntp_scoring.get_virt_type() == 'container':
-        status += ', time sync disabled in container'
+        status.append('time sync disabled in container')
 
-    # append Hyper-V status
-    hyperv_status = hyperv_sync_status()
-    if hyperv_status is not None:
-        status += ', ' + hyperv_status
+    # Hyper-V status
+    status.append(ntp_hyperv.sync_status())
 
-    # append scoring status
+    # scoring status
     # (don't force update of the score from update-status more than once a month)
     max_age = 31 * 86400
-    scorestr = ntp_scoring.get_score_string(max_seconds=max_age)
-    if scorestr is not None:
-        status += ', ' + scorestr
+    status.append(ntp_scoring.get_score_string(max_seconds=max_age))
 
-    # append auto_peer status
-    autopeer = unitdata.kv().get('auto_peer')
-    if autopeer is not None:
-        status += ' [{}]'.format(autopeer)
+    # auto_peer status
+    status.append(unitdata.kv().get('auto_peer'))
 
+    # join the non-None results in a single string
+    status = package + ': ' + ', '.join([x for x in status if x is not None])
     hookenv.status_set(state, status)
 
 
 if __name__ == '__main__':
-    try:
-        hooks.execute(sys.argv)
-    except hookenv.UnregisteredHookError as e:
-        hookenv.log('Unknown hook {} - skipping.'.format(e))
+    main()

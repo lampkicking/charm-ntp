@@ -1,5 +1,6 @@
 
 # Copyright (c) 2017 Canonical Ltd
+# License: GPLv3
 # Author: Paul Gear
 
 # This module retrieves the score calculated in ntp_source_score, and
@@ -9,15 +10,14 @@
 # to decrease the likelihood that they will be selected as upstreams.
 
 from charmhelpers.core import hookenv, unitdata
-import charmhelpers.fetch as fetch
 import json
 import time
 
 import ntp_source_score
 
 
-def install_packages():
-    fetch.apt_install(["facter", "ntpdate", "python3-psutil", "virt-what"], fatal=False)
+def packages_to_install():
+    return ["facter", "ntpdate", "python3-psutil", "virt-what"]
 
 
 def get_virt_type():
