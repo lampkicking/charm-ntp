@@ -1,0 +1,13 @@
+# juju-generated chrony startup config
+
+# This is a configuration file for /etc/init.d/chrony and
+# /lib/systemd/system/chrony.service; it allows you to pass various options to
+# the chrony daemon without editing the init script or service file.
+
+# Options to pass to chrony.
+{%- if is_container == 1 %}
+DAEMON_OPTS="-x"
+{%- else %}
+DAEMON_OPTS=""
+{%- endif %}
+

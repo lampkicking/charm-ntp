@@ -3,13 +3,13 @@ options:
     default: ""
     type: string
     description: >
-        Space-separated list of NTP servers to use as sources for time.
+        Space-separated list of NTP servers to use as time sources.
   peers:
     default: ""
     type: string
     description: >
-        Space-separated list of NTP servers to use as peers for time.
-        Peers are allowed to query the local NTP server via ntpq.
+        Space-separated list of NTP servers to use as peers.  Under ntpd,
+        peers are allowed to query the local NTP server via ntpq.
   pools:
     default: >
         0.ubuntu.pool.ntp.org
@@ -19,25 +19,27 @@ options:
         ntp.ubuntu.com
     type: string
     description: >
-        Space-separated list of NTP servers to use as pool sources for
-        time.  Pool sources are recommended over normal sources for their
-        self-healing capabilities. Leave empty to disable pool sources.
+        Space-separated list of NTP servers to use as pool sources. These
+        are recommended over normal sources for their self-healing
+        capabilities. Leave empty to disable pool sources.
   orphan_stratum:
-    default: 6
+    default: 0
     type: int
     description: >
-        The NTP stratum at which ntp most lose connectivity to before it 
-        considers itself orphaned, and starts communicating with local peers.
-        The default value of 6 will enable orphaned operation when there are
-        no stratum 6 servers or servers of a higher stratum available, which
-        is two strata below most Internet NTP hosts.
-        Set to 0 to disable orphan mode entirely.
+        The stratum at which NTP must lose connectivity to before it considers
+        itself orphaned, and starts determining the reference time with local
+        peers.  A typical value is 6, which will enable orphaned operation
+        when there are no stratum 6 servers or servers of a higher stratum
+        available, which is two strata below most Internet NTP hosts.  Set to
+        0 to disable orphan mode entirely.  You must enable at least one peer
+        in order to use orphan mode, but four or more is recommended for best
+        results.
   nagios_context:
     default: "juju"
     type: string
     description: |
       Used by the nrpe-external-master subordinate charm.
-      A string that will be prepended to instance name to set the host name
+      A string which will be prepended to instance name to set the host name
       in nagios. So for instance the hostname would be something like:
           juju-myservice-0
       If you're running multiple environments with the same services in them

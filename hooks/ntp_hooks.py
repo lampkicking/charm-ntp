@@ -1,21 +1,18 @@
 #!/usr/bin/python3
 
 from charmhelpers.contrib.charmsupport import nrpe
-from charmhelpers.contrib.templating.jinja import render
 from charmhelpers.core import hookenv, host, unitdata
 import charmhelpers.fetch as fetch
 import os
-import shutil
 import sys
 
+import ntp_implementation
 import ntp_scoring
 
 NAGIOS_PLUGINS = '/usr/local/lib/nagios/plugins'
 
-NTP_CONF = '/etc/ntp.conf'
-NTP_CONF_ORIG = '{}.orig'.format(NTP_CONF)
-
 hooks = hookenv.Hooks()
+implementation = ntp_implementation.get_implementation()
 
 
 def get_peer_sources(topN=6):
@@ -65,9 +62,8 @@ def get_peer_sources(topN=6):
 def install():
     fetch.apt_update(fatal=True)
     ntp_scoring.install_packages()
-    if ntp_scoring.get_virt_type() != 'container':
-        fetch.apt_install(["ntp"], fatal=True)
-        shutil.copy(NTP_CONF, NTP_CONF_ORIG)
+    fetch.apt_install(implementation.packages_to_install(), fatal=True)
+    implementation.save_config()
 
 
 def get_sources(sources, iburst=True, source_list=None):
@@ -92,16 +88,20 @@ def get_sources(sources, iburst=True, source_list=None):
 @hooks.hook('master-relation-departed')
 @hooks.hook('ntp-peers-relation-joined',
             'ntp-peers-relation-changed')
-@host.restart_on_change({NTP_CONF: ['ntp']})
+@host.restart_on_change({implementation.config_file(): [implementation.service_name()]})
 def write_config():
     ntp_scoring.install_packages()
-    if ntp_scoring.get_virt_type() == 'container':
-        host.service_stop('ntp')
-        host.service_pause('ntp')
-        hookenv.close_port(123, protocol="UDP")
-        return
 
-    host.service_resume('ntp')
+    if ntp_scoring.get_virt_type() == 'container':
+        is_container = 1
+    else:
+        is_container = 0
+
+    implementation.set_startup_options({
+        'is_container': is_container,
+    })
+
+    host.service_resume(implementation.service_name())
     hookenv.open_port(123, protocol="UDP")
 
     use_iburst = hookenv.config('use_iburst')
@@ -142,17 +142,17 @@ def write_config():
         kv.unset('auto_peer')
 
     if len(remote_sources) == 0 and len(remote_peers) == 0 and len(remote_pools) == 0:
-        # we have no peers/pools/servers; restore default ntp.conf provided by OS
-        shutil.copy(NTP_CONF_ORIG, NTP_CONF)
+        # we have no peers/pools/servers; restore default config
+        implementation.restore_config()
     else:
         # otherwise, write our own configuration
-        with open(NTP_CONF, "w") as ntpconf:
-            ntpconf.write(render(os.path.basename(NTP_CONF), {
-                'orphan_stratum': orphan_stratum,
-                'peers': remote_peers,
-                'pools': remote_pools,
-                'servers': remote_sources,
-            }))
+        implementation.set_config({
+            'is_container': is_container,
+            'orphan_stratum': orphan_stratum,
+            'peers': remote_peers,
+            'pools': remote_pools,
+            'servers': remote_sources,
+        })
 
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
@@ -263,27 +263,32 @@ def hyperv_sync_status():
 
 @hooks.hook('update-status')
 def assess_status():
-    version = fetch.get_upstream_version('ntp')
+    package = implementation.package_name()
+    version = fetch.get_upstream_version(package)
     if version is not None:
         hookenv.application_version_set(version)
 
-    # create base status
-    if ntp_scoring.get_virt_type() == 'container':
-        state = 'blocked'
-        status = 'NTP not supported in containers: please configure on host'
-    elif host.service_running('ntp'):
+    # base status
+    status = package + ': '
+
+    # append service status
+    if host.service_running(implementation.service_name()):
         state = 'active'
-        status = 'Ready'
+        status += 'Ready'
     else:
         state = 'blocked'
-        status = 'Not running'
+        status += 'Not running'
 
-    # append Hyper-V status, if any
+    # append container status
+    if ntp_scoring.get_virt_type() == 'container':
+        status += ', time sync disabled in container'
+
+    # append Hyper-V status
     hyperv_status = hyperv_sync_status()
     if hyperv_status is not None:
         status += ', ' + hyperv_status
 
-    # append scoring status, if any
+    # append scoring status
     # (don't force update of the score from update-status more than once a month)
     max_age = 31 * 86400
     scorestr = ntp_scoring.get_score_string(max_seconds=max_age)
