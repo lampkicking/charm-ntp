@@ -59,7 +59,6 @@ def get_peer_sources(topN=6):
     """
     if topN is None:
         topN = 6
-
     ourscore = get_score()
     if ourscore is None:
         return None
@@ -87,20 +86,9 @@ def get_peer_sources(topN=6):
         return map(lambda x: x[0], topNhosts)
 
 
-def get_source_list(sources, iburst=True, source_list=None):
-    if source_list is None:
-        source_list = []
-    if sources:
-        # allow both strings and lists
-        if isinstance(sources, str):
-            sources = sources.split()
-        for s in sources:
-            if len(s) > 0:
-                if iburst:
-                    source_list.append({'name': s, 'iburst': 'iburst'})
-                else:
-                    source_list.append({'name': s, 'iburst': ''})
-    return source_list
+@hook('upgrade-charm')
+def upgrade():
+    remove_state('ntp.installed')
 
 
 @when_not('ntp.installed')
@@ -122,9 +110,20 @@ def install():
     remove_state('ntp.configured')
 
 
-@hook('upgrade-charm')
-def upgrade():
-    remove_state('ntp.installed')
+def get_source_list(sources, iburst=True, source_list=None):
+    if source_list is None:
+        source_list = []
+    if sources:
+        # allow both strings and lists
+        if isinstance(sources, str):
+            sources = sources.split()
+        for s in sources:
+            if len(s) > 0:
+                if iburst:
+                    source_list.append({'name': s, 'iburst': 'iburst'})
+                else:
+                    source_list.append({'name': s, 'iburst': ''})
+    return source_list
 
 
 @hook('ntp-peers-relation-joined')
