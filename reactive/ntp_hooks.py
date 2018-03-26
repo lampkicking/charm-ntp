@@ -219,7 +219,7 @@ def write_config():
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
 
-    remove_state('ntp.configured')
+    set_state('ntp.configured')
     assess_status()
 
 
