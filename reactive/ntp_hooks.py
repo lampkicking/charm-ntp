@@ -26,9 +26,32 @@ NAGIOS_PLUGINS = '/usr/local/lib/nagios/plugins'
 implementation = ntp_implementation.get_implementation()
 
 
+def get_score():
+    hookenv.status_set('maintentance', 'Retrieving suitability score')
+    ourscore = ntp_scoring.get_score()
+    if ourscore is None:
+        hookenv.log('[AUTO_PEER] Our score cannot be determined - check logs for reason')
+    return ourscore
+
+
+def get_relation_attributes(relation_name, attribute=None):
+    """Get the list of all private-addresses from the given relation name, or, if an attribute is provided,
+    a list of address/attribute pairs."""
+    for relid in hookenv.relation_ids(relation_name):
+        for unit in hookenv.related_units(relid=relid):
+            addr = hookenv.relation_get(attribute='private-address', unit=unit, rid=relid)
+            if attribute is None:
+                yield addr
+                continue
+            attr = hookenv.relation_get(attribute=attribute, unit=unit, rid=relid)
+            if attr is None:
+                yield addr
+            else:
+                yield (addr, attr)
+
+
 def get_peer_sources(topN=6):
     """
-    Get our score and put it on the peer relation.
     Read the peer private addresses and their scores.
     Determine whether we're in the top N scores;
     if so, we're upstream - return None
@@ -36,21 +59,14 @@ def get_peer_sources(topN=6):
     """
     if topN is None:
         topN = 6
-    hookenv.status_set('maintentance', 'Retrieving suitability score')
-    ourscore = ntp_scoring.get_score()
+
+    ourscore = get_score()
     if ourscore is None:
-        hookenv.log('[AUTO_PEER] Our score cannot be determined - check logs for reason')
         return None
 
-    hookenv.status_set('maintentance', 'Retrieving peer suitability scores')
-    peers = []
-    for relid in hookenv.relation_ids('ntp-peers'):
-        hookenv.relation_set(relation_id=relid, relation_settings={'score': ourscore['score']})
-        for unit in hookenv.related_units(relid):
-            addr = hookenv.relation_get('private-address', unit, relid)
-            peerscore = hookenv.relation_get('score', unit, relid)
-            if peerscore is not None:
-                peers.append((addr, float(peerscore)))
+    hookenv.status_set('maintentance', 'Retrieving peer scores')
+    peers = get_relation_attributes('ntp-peers', 'score')
+    hookenv.status_set('maintentance', 'Retrieved peer scores')
 
     if len(peers) < topN:
         # we don't have enough peers to do auto-peering
@@ -58,7 +74,7 @@ def get_peer_sources(topN=6):
         return None
 
     # list of hosts with scores better than ours
-    hosts = list(filter(lambda x: x[1] > ourscore['score'], peers))
+    hosts = list(filter(lambda x: float(x[1]) > ourscore['score'], peers))
     hookenv.log('[AUTO_PEER] {} peers better than us, topN == {}'.format(len(hosts), topN))
 
     # if the list is less than topN long, we're in the topN hosts
@@ -66,12 +82,12 @@ def get_peer_sources(topN=6):
         return None
     else:
         # sort list of hosts by score, keep only the topN
-        topNhosts = sorted(hosts, key=lambda x: x[1], reverse=True)[0:topN]
+        topNhosts = sorted(hosts, key=lambda x: float(x[1]), reverse=True)[0:topN]
         # return only the host addresses
         return map(lambda x: x[0], topNhosts)
 
 
-def get_sources(sources, iburst=True, source_list=None):
+def get_source_list(sources, iburst=True, source_list=None):
     if source_list is None:
         source_list = []
     if sources:
@@ -103,13 +119,33 @@ def install():
     implementation.save_config()
     hookenv.status_set('active', 'Installed required packages')
     set_state('ntp.installed')
+    remove_state('ntp.configured')
 
 
-@hook('upgrade-charm')
+@hook('ntp-peers-relation-joined')
+def set_peer_relation_score():
+    """Get our score (calculate it if necessary), and add it to the peer relation."""
+    ourscore = get_score()
+    if ourscore is not None:
+        extra_status = ', ' + ntp_scoring.get_score_string(ourscore)
+        hookenv.status_set('maintentance', 'Setting score on peer relation')
+        for relid in hookenv.relation_ids('ntp-peers'):
+            hookenv.relation_set(relation_id=relid, relation_settings={'score': ourscore['score']})
+    else:
+        extra_status = ''
+    hookenv.status_set('active', 'Peer relation joined' + extra_status)
+
+
+@hook('ntp-peers-relation-changed')
+def reconfigure_peers():
+    """Reconfigure if we're in auto_peers mode."""
+    if hookenv.config('auto_peers'):
+        remove_state('ntp.configured')
+
+
 @hook('master-relation-changed')
 @hook('master-relation-departed')
-@hook('ntp-peers-relation-joined')
-@hook('ntp-peers-relation-changed')
+@hook('upgrade-charm')
 @when('config.changed')
 def reconfigure():
     remove_state('ntp.configured')
@@ -138,19 +174,15 @@ def write_config():
     peers = hookenv.config('peers')
     auto_peers = hookenv.config('auto_peers')
 
-    remote_sources = get_sources(source, iburst=use_iburst)
-    remote_pools = get_sources(pools, iburst=use_iburst)
-    remote_peers = get_sources(peers, iburst=use_iburst)
+    remote_sources = get_source_list(source, iburst=use_iburst)
+    remote_pools = get_source_list(pools, iburst=use_iburst)
+    remote_peers = get_source_list(peers, iburst=use_iburst)
 
     kv = unitdata.kv()
 
     if hookenv.relation_ids('master'):
         # use master relation in addition to configured sources
-        for relid in hookenv.relation_ids('master'):
-            for unit in hookenv.related_units(relid=relid):
-                u_addr = hookenv.relation_get(attribute='private-address',
-                                              unit=unit, rid=relid)
-                remote_sources.append({'name': u_addr, 'iburst': 'iburst'})
+        remote_sources = get_source_list(get_relation_attributes('master'), iburst=True, source_list=remote_sources)
     elif auto_peers and hookenv.relation_ids('ntp-peers'):
         # use auto_peers
         auto_peer_list = get_peer_sources(hookenv.config('auto_peers_upstream'))
@@ -160,7 +192,7 @@ def write_config():
         else:
             # override all sources with auto_peer_list
             kv.set('auto_peer', 'client')
-            remote_sources = get_sources(auto_peer_list, iburst=use_iburst)
+            remote_sources = get_source_list(auto_peer_list, iburst=use_iburst)
             remote_pools = []
             remote_peers = []
     else:

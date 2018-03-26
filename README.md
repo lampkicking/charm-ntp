@@ -55,6 +55,7 @@ In other juju environments which do not have outbound NTP access:
     juju deploy ntp ntp-stratum3
     juju add-relation my-service ntp-stratum3
     juju add-relation ntp-stratum2 ntp-stratum3
+    juju set ntp source="" peers="" pools=""
 
 
 Auto peers

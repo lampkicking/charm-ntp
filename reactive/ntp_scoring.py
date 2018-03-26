@@ -129,10 +129,7 @@ def check_score(seconds=None):
 
 
 def get_score(max_seconds=86400):
-    # Remove this if/when we convert the charm to reactive
     kv = unitdata.kv()
-    hookenv.atexit(kv.flush)
-
     score = kv.get('ntp_score')
     if score is not None:
         saved_time = score.get('time', 0)
@@ -151,7 +148,7 @@ def get_score(max_seconds=86400):
 def get_score_string(score=None, max_seconds=86400):
     if score is None:
         score = get_score(max_seconds)
-    if not hookenv.config('auto_peers') or 'raw' not in score:
+    if 'raw' not in score:
         return None
     return 'score %.3f (%.1f) at %s' % (
         score['score'],
