@@ -122,6 +122,11 @@ def install():
     remove_state('ntp.configured')
 
 
+@hook('upgrade-charm')
+def upgrade():
+    remove_state('ntp.installed')
+
+
 @hook('ntp-peers-relation-joined')
 def set_peer_relation_score():
     """Get our score (calculate it if necessary), and add it to the peer relation."""
@@ -145,7 +150,6 @@ def reconfigure_peers():
 
 @hook('master-relation-changed')
 @hook('master-relation-departed')
-@hook('upgrade-charm')
 @when('config.changed')
 def reconfigure():
     remove_state('ntp.configured')
