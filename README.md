@@ -1,8 +1,8 @@
 Overview
 --------
 
-NTP provides network based time services to ensure synchronization of time
-across computers.
+Network Time Protocol is a network-based time service to ensure synchronization
+of time across a network of computers.  It is defined in RFC5905.
 
 
 Usage
@@ -12,13 +12,13 @@ The ntp charm is a subordinate charm which is designed for use with other
 principal charms.  In its basic mode, the ntp charm is used to configure NTP
 in service units to talk directly to a set of NTP time sources:
 
-    juju deploy ntp
+    juju deploy cs:ntp
     juju add-relation ntp myservice
 
 By default this charm uses the standard set of NTP pool servers which are
-configured in the relevant Ubuntu package.  In the event that you don't wish
-every juju unit on your network to talk directly to the public NTP pool on the
-Internet, there are several options.
+configured in Ubuntu.  In the event that you don't wish every juju unit on your
+network to talk directly to the public NTP pool on the Internet, there are
+several options.
 
 
 Manual
@@ -45,14 +45,14 @@ other units.
 
 On machines which do have outbound NTP access to the Internet:
 
-    juju deploy ubuntu --num-units=4
-    juju deploy ntp ntp-stratum2
+    juju deploy cs:ubuntu --num-units=4
+    juju deploy cs:ntp ntp-stratum2
     juju add-relation ubuntu ntp-stratum2
 
-In other juju environments which do not have outbound NTP access:
+On other juju units which do not have outbound NTP access:
 
     juju deploy my-service
-    juju deploy ntp ntp-stratum3
+    juju deploy cs:ntp ntp-stratum3
     juju add-relation my-service ntp-stratum3
     juju add-relation ntp-stratum2 ntp-stratum3
     juju set ntp source="" peers="" pools=""
@@ -64,10 +64,10 @@ Auto peers
 Auto peers implements multiple strata automatically, by testing upstream NTP
 connectivity, selecting the units with the best connectivity to comprise
 the upstream stratum, and configuring the remaining hosts to receive time from
-the upstream stratum.
+those units.
 
     juju deploy my-service
-    juju deploy ntp
+    juju deploy cs:ntp
     juju add-relation my-service ntp
     juju set ntp auto_peers=true
 
