@@ -32,7 +32,7 @@ def log(msg):
 
 
 def get_score():
-    hookenv.status_set('maintentance', 'Retrieving suitability score')
+    hookenv.status_set('maintenance', 'Retrieving suitability score')
     return ntp_scoring.get_score()
 
 
@@ -65,9 +65,9 @@ def get_peer_sources(topN=6):
     if ourscore is None:
         return None
 
-    hookenv.status_set('maintentance', 'Retrieving peer scores')
+    hookenv.status_set('maintenance', 'Retrieving peer scores')
     peers = get_relation_attributes('ntp-peers', 'score')
-    hookenv.status_set('maintentance', 'Retrieved peer scores')
+    hookenv.status_set('maintenance', 'Retrieved peer scores')
 
     if len(peers) < topN:
         # we don't have enough peers to do auto-peering
@@ -95,15 +95,15 @@ def upgrade():
 
 @when_not('ntp.installed')
 def install():
-    hookenv.status_set('maintentance', 'Updating package database')
+    hookenv.status_set('maintenance', 'Updating package database')
     fetch.apt_update(fatal=True)
 
     pkgs = ntp_scoring.packages_to_install()
-    hookenv.status_set('maintentance', 'Installing ' + ', '.join(pkgs))
+    hookenv.status_set('maintenance', 'Installing ' + ', '.join(pkgs))
     fetch.apt_install(pkgs, fatal=False)
 
     pkgs = implementation.packages_to_install()
-    hookenv.status_set('maintentance', 'Installing ' + ', '.join(pkgs))
+    hookenv.status_set('maintenance', 'Installing ' + ', '.join(pkgs))
     fetch.apt_install(pkgs, fatal=True)
 
     implementation.save_config()
@@ -134,7 +134,7 @@ def set_peer_relation_score():
     ourscore = get_score()
     if ourscore is not None:
         extra_status = ', ' + ntp_scoring.get_score_string(ourscore)
-        hookenv.status_set('maintentance', 'Setting score on peer relation')
+        hookenv.status_set('maintenance', 'Setting score on peer relation')
         for relid in hookenv.relation_ids('ntp-peers'):
             hookenv.relation_set(relation_id=relid, relation_settings={'score': ourscore['score']})
     else:
