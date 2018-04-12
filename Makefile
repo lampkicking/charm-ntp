@@ -1,6 +1,6 @@
 #!/usr/bin/make
 TEAM := $(LOGNAME)
-PYTHONPATH := $(PYTHONPATH):$(PWD)/reactive
+PYTHONPATH := $(PYTHONPATH):$(PWD)/reactive:$(PWD)/lib
 PYTHON := python3
 CHARM_NAME := ntp
 CS_CHANNEL := candidate
