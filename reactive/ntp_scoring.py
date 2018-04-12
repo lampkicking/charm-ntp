@@ -13,6 +13,7 @@ from charmhelpers.core import hookenv, unitdata
 import json
 import time
 
+from ntp_hooks import log
 import ntp_source_score
 
 
@@ -39,10 +40,10 @@ def get_virt_multiplier():
         # containers should be synchronized from their host
         return -1
     elif virt_type == 'physical':
-        hookenv.log('[SCORE] running on physical host - score bump 25%')
+        log('[SCORE] running on physical host - score bump 25%')
         return 1.25
     else:
-        hookenv.log('[SCORE] probably running in a VM - score bump 0%')
+        log('[SCORE] probably running in a VM - score bump 0%')
         return 1
 
 
@@ -73,7 +74,7 @@ def get_package_divisor():
     # increase the divisor for each discovered process type
     divisor = 1
     for r in running:
-        hookenv.log('[SCORE] %s running - score divisor %.3f' % (r, running[r]))
+        log('[SCORE] %s running - score divisor %.3f' % (r, running[r]))
         divisor *= running[r]
     return divisor
 
@@ -92,21 +93,21 @@ def check_score(seconds=None):
     relation_sources = hookenv.relation_ids('master')
     score['master-relations'] = len(relation_sources)
     if relation_sources is not None and len(relation_sources) > 0:
-        hookenv.log('[SCORE] master relation configured - skipped scoring')
+        log('[SCORE] master relation configured - skipped scoring')
         return score
 
     # skip scoring if we're in a container
     multiplier = get_virt_multiplier()
     score['multiplier'] = multiplier
     if multiplier <= 0:
-        hookenv.log('[SCORE] running in a container - skipped scoring')
+        log('[SCORE] running in a container - skipped scoring')
         return score
 
     # skip scoring if auto_peers is off
     auto_peers = hookenv.config('auto_peers')
     score['auto-peers'] = auto_peers
     if not auto_peers:
-        hookenv.log('[SCORE] auto_peers is disabled - skipped scoring')
+        log('[SCORE] auto_peers is disabled - skipped scoring')
         return score
 
     # skip scoring if we have no sources
@@ -115,7 +116,7 @@ def check_score(seconds=None):
     pools = hookenv.config('pools').split()
     host_list = sources + peers + pools
     if len(host_list) == 0:
-        hookenv.log('[SCORE] No sources configured')
+        log('[SCORE] No sources configured')
         return score
 
     # Now that we've passed all those checks, check upstreams, calculate a score, and return the result
@@ -124,7 +125,7 @@ def check_score(seconds=None):
     score['host-list'] = host_list
     score['raw'] = ntp_source_score.get_source_score(host_list, verbose=True)
     score['score'] = score['raw'] * multiplier / divisor
-    hookenv.log('[SCORE] Suitability score: %.3f' % (score['score'],))
+    log('[SCORE] Suitability score: %.3f' % (score['score'],))
     return score
 
 
@@ -140,7 +141,7 @@ def get_score(max_seconds=86400):
     if score is None or now - saved_time > max_seconds:
         score = check_score(now)
         kv.set('ntp_score', score)
-        hookenv.log('[SCORE] saved %s' % (json.dumps(score),))
+        log('[SCORE] saved %s' % (json.dumps(score),))
 
     return score
 

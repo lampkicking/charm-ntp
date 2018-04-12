@@ -3,7 +3,7 @@
 # License: GPLv3
 # Author: Paul Gear
 
-from charmhelpers.core.hookenv import log
+from ntp_hooks import log
 import os
 
 """Hyper-V host clock sync handling for NTP charm"""

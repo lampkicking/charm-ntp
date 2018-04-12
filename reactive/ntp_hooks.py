@@ -4,6 +4,7 @@ from charmhelpers.contrib.charmsupport import nrpe
 from charmhelpers.core import hookenv, host, unitdata
 import charmhelpers.fetch as fetch
 import os
+import sys
 
 from charms.reactive import (
     main,
@@ -26,12 +27,14 @@ NAGIOS_PLUGINS = '/usr/local/lib/nagios/plugins'
 implementation = ntp_implementation.get_implementation()
 
 
+def log(msg):
+    """Don't call a 90 MB statically-linked binary every time we want to log something"""
+    print(msg, file=sys.stderr)
+
+
 def get_score():
     hookenv.status_set('maintentance', 'Retrieving suitability score')
-    ourscore = ntp_scoring.get_score()
-    if ourscore is None:
-        hookenv.log('[AUTO_PEER] Our score cannot be determined - check logs for reason')
-    return ourscore
+    return ntp_scoring.get_score()
 
 
 def get_relation_attributes(relation_name, attribute=None):
@@ -69,12 +72,12 @@ def get_peer_sources(topN=6):
 
     if len(peers) < topN:
         # we don't have enough peers to do auto-peering
-        hookenv.log('[AUTO_PEER] There are only {} peers; not doing auto-peering'.format(len(peers)))
+        log('[AUTO_PEER] There are only {} peers; not doing auto-peering'.format(len(peers)))
         return None
 
     # list of hosts with scores better than ours
     hosts = list(filter(lambda x: float(x[1]) > ourscore['score'], peers))
-    hookenv.log('[AUTO_PEER] {} peers better than us, topN == {}'.format(len(hosts), topN))
+    log('[AUTO_PEER] {} peers better than us, topN == {}'.format(len(hosts), topN))
 
     # if the list is less than topN long, we're in the topN hosts
     if len(hosts) < topN:
