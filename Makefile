@@ -16,7 +16,7 @@ build: lint
 	charm build
 
 push: build
-	cd $(JUJU_REPOSITORY)/build/$(CHARM_NAME); \
+	cd $(JUJU_REPOSITORY)/builds/$(CHARM_NAME) && \
 	    version=`charm push . $(CSDEST) | awk '/^url:/ {print $$2}'` && \
 	    charm release --channel $(CS_CHANNEL) $$version
 
