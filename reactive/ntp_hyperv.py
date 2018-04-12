@@ -3,8 +3,8 @@
 # License: GPLv3
 # Author: Paul Gear
 
-from ntp_hooks import log
 import os
+import sys
 
 """Hyper-V host clock sync handling for NTP charm"""
 
@@ -15,6 +15,10 @@ import os
 
 _device_class = '9527e630-d0ae-497b-adce-e80ab0175caf'
 _vmbus_dir = '/sys/bus/vmbus/'
+
+
+def log(msg):
+    print(msg, file=sys.stderr)
 
 
 def _find_host_sync_device():

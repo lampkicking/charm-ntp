@@ -11,10 +11,14 @@
 
 from charmhelpers.core import hookenv, unitdata
 import json
+import sys
 import time
 
-from ntp_hooks import log
 import ntp_source_score
+
+
+def log(msg):
+    print(msg, file=sys.stderr)
 
 
 def packages_to_install():

@@ -28,7 +28,6 @@ implementation = ntp_implementation.get_implementation()
 
 
 def log(msg):
-    """Don't call a 90 MB statically-linked binary every time we want to log something"""
     print(msg, file=sys.stderr)
 
 
