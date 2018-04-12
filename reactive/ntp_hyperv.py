@@ -81,4 +81,3 @@ def sync_status():
             return 'Failed to disable Hyper-V host sync'
     else:
         return None
-
