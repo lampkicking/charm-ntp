@@ -66,7 +66,7 @@ def get_peer_sources(topN=6):
         return None
 
     hookenv.status_set('maintenance', 'Retrieving peer scores')
-    peers = get_relation_attributes('ntp-peers', 'score')
+    peers = list(get_relation_attributes('ntp-peers', 'score'))
     hookenv.status_set('maintenance', 'Retrieved peer scores')
 
     if len(peers) < topN:
