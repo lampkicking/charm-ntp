@@ -134,8 +134,17 @@ def check_score(seconds=None):
 
 
 def get_score(max_seconds=86400):
-    kv = unitdata.kv()
-    score = kv.get('ntp_score')
+    # get any score saved from an older charm version
+    default_kv = unitdata.kv()
+    default_score = default_kv.get('ntp_score')
+
+    # use a dedicated unitdata storage db to ensure the score is always saved regardless of hook completion
+    path = default_kv.db_path.replace('.db', '') + '.ntp_scoring.db'
+    default_kv.close()
+    kv = unitdata.Storage(path=path)
+    hookenv.atexit(kv.flush)
+
+    score = kv.get('ntp_score', default=default_score)
     if score is not None:
         saved_time = score.get('time', 0)
     else:
