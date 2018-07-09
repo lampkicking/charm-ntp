@@ -60,13 +60,14 @@ def get_package_divisor():
     # set the weight for each process (regardless of how many there are running)
     running = {}
     for p in psutil.process_iter():
-        if p.name().startswith('nova-compute'):
+        name = p.name() if psutil.version_info >= (2, 0) else p.name
+        if name.startswith('nova-compute'):
             running['nova-compute'] = 1.25
-        if p.name().startswith('ceph-osd'):
+        if name.startswith('ceph-osd'):
             running['ceph-osd'] = 1.25
-        elif p.name().startswith('ceph-'):
+        elif name.startswith('ceph-'):
             running['ceph'] = 1.1
-        elif p.name().startswith('swift-'):
+        elif name.startswith('swift-'):
             running['swift'] = 1.1
 
     # increase the divisor for each discovered process type
