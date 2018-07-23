@@ -2,8 +2,9 @@
 
 from charmhelpers.contrib.charmsupport import nrpe
 from charmhelpers.core import hookenv, host, unitdata
+from charms import layer
 import charmhelpers.fetch as fetch
-import os
+import subprocess
 import sys
 
 from charms.reactive import (
@@ -21,8 +22,6 @@ from charms.reactive.decorators import (
 import ntp_hyperv
 import ntp_implementation
 import ntp_scoring
-
-NAGIOS_PLUGINS = '/usr/local/lib/nagios/plugins'
 
 implementation = ntp_implementation.get_implementation()
 
@@ -217,7 +216,6 @@ def write_config():
             'servers': remote_sources,
         })
 
-    # FIXME: remove
     if hookenv.relation_ids('nrpe-external-master'):
         update_nrpe_config()
 
@@ -225,28 +223,22 @@ def write_config():
     assess_status()
 
 
-# FIXME: move to ntpmon layer
-@hook('nrpe-external-master-relation-joined')
-@hook('nrpe-external-master-relation-changed')
+@when('nrpe-external-master.available', 'ntpmon.installed')
 def update_nrpe_config():
-    # python-dbus is used by check_upstart_job
-    # python-psutil is used by check_ntpmon
-    fetch.apt_install(['python-dbus', 'python-psutil'])
-    nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks').split()
-    if os.path.isdir(NAGIOS_PLUGINS):
-        host.rsync(os.path.join(os.getenv('CHARM_DIR'), 'files', 'nagios',
-                   'check_ntpmon.py'),
-                   os.path.join(NAGIOS_PLUGINS, 'check_ntpmon.py'))
+    options = layer.options('ntpmon')
+    if options is None or 'install-dir' not in options:
+        return
+
+    nrpe.copy_nrpe_checks(nrpe_files_dir=options['install-dir'])
 
     hostname = nrpe.get_nagios_hostname()
     current_unit = nrpe.get_nagios_unit_name()
     nrpe_setup = nrpe.NRPE(hostname=hostname, primary=False)
 
-    allchecks = set(['offset', 'peers', 'reachability', 'sync'])
-
     # remove any previously-created ntpmon checks
     nrpe_setup.remove_check(shortname="ntpmon")
-    for c in allchecks:
+    oldchecks = set(['offset', 'peers', 'reachability', 'sync'])
+    for c in oldchecks:
         nrpe_setup.remove_check(shortname="ntpmon_%s" % c)
 
     nrpe_setup.add_check(
