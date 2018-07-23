@@ -13,10 +13,9 @@ description: |
 tags:
   - misc
 series:
+  - bionic
   - xenial
   - trusty
-  - artful
-  - bionic
 provides:
   ntpmaster:
     interface: ntp
