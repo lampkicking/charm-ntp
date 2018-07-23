@@ -241,13 +241,25 @@ def update_nrpe_config():
     for c in oldchecks:
         nrpe_setup.remove_check(shortname="ntpmon_%s" % c)
 
+    nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks').split()
+
+    check_cmd = 'check_ntpmon.py --check ' + ' '.join(nagios_ntpmon_checks)
+    unitdata.kv().set('check_cmd', check_cmd)
     nrpe_setup.add_check(
-        shortname="ntpmon",
+        check_cmd=check_cmd,
         description='Check NTPmon {}'.format(current_unit),
-        check_cmd=('check_ntpmon.py --checks ' +
-                   ' '.join(nagios_ntpmon_checks))
+        shortname="ntpmon",
     )
     nrpe_setup.write()
+
+
+def get_first_line(cmd):
+    """Run the command and return the first line"""
+    try:
+        output = subprocess.check_output(cmd.split(), stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as cpe:
+        output = cpe.output
+    return output.decode().split('\n')[0]
 
 
 @hook('update-status')
@@ -270,6 +282,10 @@ def assess_status():
     # container status
     if ntp_scoring.get_virt_type() == 'container':
         status.append('time sync disabled in container')
+    else:
+        check_cmd = unitdata.kv().get('check_cmd')
+        if check_cmd:
+            status.append(get_first_line(check_cmd))
 
     # Hyper-V status
     status.append(ntp_hyperv.sync_status())
@@ -283,7 +299,7 @@ def assess_status():
     status.append(unitdata.kv().get('auto_peer'))
 
     # join the non-None results in a single string
-    status = package + ': ' + ', '.join([x for x in status if x is not None])
+    status = package + ': ' + ', '.join([x for x in status if x])
     hookenv.status_set(state, status)
 
 
