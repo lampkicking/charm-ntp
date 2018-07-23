@@ -1,4 +1,5 @@
 includes:
+    - interface:juju-info
     - layer:basic
     - layer:nagios
     - layer:ntpmon
