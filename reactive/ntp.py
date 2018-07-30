@@ -128,7 +128,7 @@ def get_source_list(sources, iburst=True, source_list=None):
 
 
 @hook('ntp-peers-relation-joined')
-def set_peer_relation_score():
+def set_peer_relation_score(context=None):
     """Get our score (calculate it if necessary), and add it to the peer relation."""
     ourscore = get_score()
     if ourscore is not None:
@@ -142,7 +142,7 @@ def set_peer_relation_score():
 
 
 @hook('ntp-peers-relation-changed')
-def reconfigure_peers():
+def reconfigure_peers(context=None):
     """Reconfigure if we're in auto_peers mode."""
     if hookenv.config('auto_peers'):
         remove_state('ntp.configured')
@@ -151,7 +151,7 @@ def reconfigure_peers():
 @hook('master-relation-changed')
 @hook('master-relation-departed')
 @when('config.changed')
-def reconfigure():
+def reconfigure(context=None):
     remove_state('ntp.configured')
 
 
