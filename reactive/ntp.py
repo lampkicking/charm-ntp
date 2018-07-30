@@ -4,6 +4,7 @@ from charmhelpers.contrib.charmsupport import nrpe
 from charmhelpers.core import hookenv, host, unitdata
 from charms import layer
 import charmhelpers.fetch as fetch
+import os
 import subprocess
 import sys
 
@@ -243,7 +244,7 @@ def update_nrpe_config():
 
     nagios_ntpmon_checks = hookenv.config('nagios_ntpmon_checks').split()
 
-    check_cmd = 'check_ntpmon.py --check ' + ' '.join(nagios_ntpmon_checks)
+    check_cmd = os.path.join(options['install-dir'], 'check_ntpmon.py') + ' --check ' + ' '.join(nagios_ntpmon_checks)
     unitdata.kv().set('check_cmd', check_cmd)
     nrpe_setup.add_check(
         check_cmd=check_cmd,
