@@ -97,13 +97,13 @@ def install():
     hookenv.status_set('maintenance', 'Updating package database')
     fetch.apt_update(fatal=True)
 
-    pkgs = ntp_scoring.packages_to_install()
-    hookenv.status_set('maintenance', 'Installing ' + ', '.join(pkgs))
-    fetch.apt_install(pkgs, fatal=False)
-
     pkgs = implementation.packages_to_install()
     hookenv.status_set('maintenance', 'Installing ' + ', '.join(pkgs))
     fetch.apt_install(pkgs, fatal=True)
+
+    pkgs = ntp_scoring.packages_to_install()
+    hookenv.status_set('maintenance', 'Installing ' + ', '.join(pkgs))
+    fetch.apt_install(pkgs, fatal=False)
 
     implementation.save_config()
     hookenv.status_set('active', 'Installed required packages')
