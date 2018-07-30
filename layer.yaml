@@ -3,7 +3,9 @@ includes:
     - layer:basic
     - layer:nagios
     - layer:ntpmon
-repo: https://git.launchpad.net/ntp-charm
+
 options:
     ntpmon:
         install-dir: /opt/ntpmon-ntp-charm
+
+repo: https://git.launchpad.net/ntp-charm
