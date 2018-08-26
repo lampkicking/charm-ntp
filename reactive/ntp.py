@@ -263,6 +263,12 @@ def get_first_line(cmd):
     return output.decode().split('\n')[0]
 
 
+def get_nagios_result(cmd):
+    """Get the first line of the nagios result & strip performance data"""
+    output = get_first_line(cmd)
+    return output.split(' | ')[0]
+
+
 @hook('update-status')
 def assess_status():
     package = implementation.package_name()
@@ -286,7 +292,7 @@ def assess_status():
     else:
         check_cmd = unitdata.kv().get('check_cmd')
         if check_cmd:
-            status.append(get_first_line(check_cmd))
+            status.append(get_nagios_result(check_cmd))
 
     # Hyper-V status
     status.append(ntp_hyperv.sync_status())
