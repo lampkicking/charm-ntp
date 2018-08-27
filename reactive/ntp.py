@@ -192,6 +192,7 @@ def write_config():
     if hookenv.relation_ids('master'):
         # use master relation in addition to configured sources
         remote_sources = get_source_list(get_relation_attributes('master'), iburst=True, source_list=remote_sources)
+        kv.unset('auto_peer')
     elif auto_peers and hookenv.relation_ids('ntp-peers'):
         # use auto_peers
         auto_peer_list = get_peer_sources(hookenv.config('auto_peers_upstream'))
