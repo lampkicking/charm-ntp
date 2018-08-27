@@ -134,6 +134,10 @@ def check_score(seconds=None):
 
 
 def get_score(max_seconds=86400):
+    # if auto_peers is disabled, don't display saved score from unitdata
+    if not hookenv.config('auto_peers'):
+        return {}
+
     # get any score saved from an older charm version
     default_kv = unitdata.kv()
     default_score = default_kv.get('ntp_score')
