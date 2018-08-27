@@ -131,28 +131,36 @@ def get_source_list(sources, iburst=True, source_list=None):
 
 @hook('ntp-peers-relation-joined')
 def set_peer_relation_score(context=None):
-    """If auto_peers is enabled, get our score (calculate it if necessary), and add it to the peer relation."""
-    ourscore = get_score() if hookenv.config('auto_peers') else None
+    """If auto_peers is enabled, get our score and add it to the peer relation."""
+    if not hookenv.config('auto_peers'):
+        return
+    ourscore = get_score()
     if ourscore is not None:
-        extra_status = ', ' + ntp_scoring.get_score_string(ourscore)
         hookenv.status_set('maintenance', 'Setting score on peer relation')
         for relid in hookenv.relation_ids('ntp-peers'):
             hookenv.relation_set(relation_id=relid, relation_settings={'score': ourscore['score']})
-    else:
-        extra_status = ''
-    hookenv.status_set('active', 'Peer relation joined' + extra_status)
+        hookenv.status_set('active', 'Peer relation joined, ' + ntp_scoring.get_score_string(ourscore))
 
 
 @hook('ntp-peers-relation-changed')
-def reconfigure_peers(context=None):
-    """Reconfigure if we're in auto_peers mode."""
+def peers_relation_changed(context=None):
+    if hookenv.config('auto_peers'):
+        remove_state('ntp.configured')
+
+
+@hook('ntp-peers-relation-departed')
+def peers_relation_departed(context=None):
     if hookenv.config('auto_peers'):
         remove_state('ntp.configured')
 
 
 @hook('master-relation-changed')
+def master_relation_changed(context=None):
+    remove_state('ntp.configured')
+
+
 @hook('master-relation-departed')
-def master_relation_change(context=None):
+def master_relation_departed(context=None):
     remove_state('ntp.configured')
 
 
