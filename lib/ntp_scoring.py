@@ -100,13 +100,6 @@ def check_score(seconds=None):
         log('[SCORE] master relation configured - skipped scoring')
         return score
 
-    # skip scoring if we're in a container
-    multiplier = get_virt_multiplier()
-    score['multiplier'] = multiplier
-    if multiplier <= 0:
-        log('[SCORE] running in a container - skipped scoring')
-        return score
-
     # skip scoring if auto_peers is off
     auto_peers = hookenv.config('auto_peers')
     score['auto-peers'] = auto_peers
@@ -121,6 +114,13 @@ def check_score(seconds=None):
     host_list = sources + peers + pools
     if len(host_list) == 0:
         log('[SCORE] No sources configured')
+        return score
+
+    # skip scoring if we're in a container
+    multiplier = get_virt_multiplier()
+    score['multiplier'] = multiplier
+    if multiplier <= 0:
+        log('[SCORE] running in a container - skipped scoring')
         return score
 
     # Now that we've passed all those checks, check upstreams, calculate a score, and return the result
