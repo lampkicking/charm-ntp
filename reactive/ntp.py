@@ -17,6 +17,7 @@ from charms.reactive import (
 from charms.reactive.decorators import (
     hook,
     when,
+    when_all,
     when_not,
 )
 
@@ -222,14 +223,13 @@ def write_config():
             'servers': remote_sources,
         })
 
-    if hookenv.relation_ids('nrpe-external-master'):
-        update_nrpe_config()
-
+    remove_state('ntp.nrpe.configured')
     set_state('ntp.configured')
     assess_status()
 
 
-@when('nrpe-external-master.available', 'ntpmon.installed')
+@when_all('nrpe-external-master.available', 'ntpmon.installed')
+@when_not('ntp.nrpe.configured')
 def update_nrpe_config():
     options = layer.options('ntpmon')
     if options is None or 'install-dir' not in options:
@@ -257,6 +257,7 @@ def update_nrpe_config():
         shortname="ntpmon",
     )
     nrpe_setup.write()
+    set_state('ntp.nrpe.configured')
 
 
 def get_first_line(cmd):
