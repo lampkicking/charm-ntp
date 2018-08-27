@@ -130,8 +130,8 @@ def get_source_list(sources, iburst=True, source_list=None):
 
 @hook('ntp-peers-relation-joined')
 def set_peer_relation_score(context=None):
-    """Get our score (calculate it if necessary), and add it to the peer relation."""
-    ourscore = get_score()
+    """If auto_peers is enabled, get our score (calculate it if necessary), and add it to the peer relation."""
+    ourscore = get_score() if hookenv.config('auto_peers') else None
     if ourscore is not None:
         extra_status = ', ' + ntp_scoring.get_score_string(ourscore)
         hookenv.status_set('maintenance', 'Setting score on peer relation')
