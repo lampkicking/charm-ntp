@@ -151,8 +151,12 @@ def reconfigure_peers(context=None):
 
 @hook('master-relation-changed')
 @hook('master-relation-departed')
+def master_relation_change(context=None):
+    remove_state('ntp.configured')
+
+
 @when('config.changed')
-def reconfigure(context=None):
+def config_changed():
     remove_state('ntp.configured')
 
 
