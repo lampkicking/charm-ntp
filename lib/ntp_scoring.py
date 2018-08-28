@@ -47,7 +47,7 @@ def get_virt_multiplier():
         log('[SCORE] running on physical host - score bump 25%')
         return 1.25
     else:
-        log('[SCORE] probably running in a VM - score bump 0%')
+        log('[SCORE] probably running in a VM - no score change')
         return 1
 
 
