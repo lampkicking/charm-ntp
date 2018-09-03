@@ -92,6 +92,10 @@ def get_peer_sources(topN=6):
 @hook('upgrade-charm')
 def upgrade():
     remove_state('ntp.installed')
+    # If we're upgrading from non-reactive to reactive, the
+    # nrpe layer won't automatically fire, so do it manually.
+    if hookenv.relation_ids('nrpe-external-master'):
+        set_state('nrpe-external-master.available')
 
 
 @when_not('ntp.installed')
