@@ -6,12 +6,13 @@
 import os
 import sys
 
-"""Hyper-V host clock sync handling for NTP charm"""
+"""Hyper-V host clock sync handling for NTP charm
 
-# References:
-# - https://bugs.launchpad.net/bugs/1676635
-# - https://patchwork.kernel.org/patch/9525945/
-# - https://social.msdn.microsoft.com/Forums/en-US/8c0a1026-0b02-405a-848e-628e68229eaf/i-have-a-lot-of-time-has-been-changed-in-the-journal-of-my-linux-boxes?forum=WAVirtualMachinesforWindows # NOQA: E501
+References:
+- https://bugs.launchpad.net/bugs/1676635
+- https://patchwork.kernel.org/patch/9525945/
+- https://social.msdn.microsoft.com/Forums/en-US/8c0a1026-0b02-405a-848e-628e68229eaf/
+"""
 
 _device_class = '9527e630-d0ae-497b-adce-e80ab0175caf'
 _vmbus_dir = '/sys/bus/vmbus/'
