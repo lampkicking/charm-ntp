@@ -110,7 +110,7 @@ def install():
     fetch.apt_install(pkgs, fatal=False)
 
     implementation.save_config()
-    hookenv.status_set('active', 'Installed required packages')
+    hookenv.status_set('maintenance', 'Installed required packages')
     set_state('ntp.installed')
     remove_state('ntp.configured')
 
