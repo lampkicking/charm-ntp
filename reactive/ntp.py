@@ -1,19 +1,18 @@
 #!/usr/bin/python3
 
-from charmhelpers.contrib.charmsupport import nrpe
-from charmhelpers.core import hookenv, host, unitdata
-from charms import layer
-import charmhelpers.fetch as fetch
 import os
 import subprocess
 import sys
 
+from charmhelpers.contrib.charmsupport import nrpe
+from charmhelpers.core import hookenv, host, unitdata
+from charms import layer
+import charmhelpers.fetch as fetch
 from charms.reactive import (
     main,
     remove_state,
     set_state,
 )
-
 from charms.reactive.decorators import (
     hook,
     when,
