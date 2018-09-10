@@ -9,10 +9,12 @@
 # for nodes with OpenStack ceph, nova, or swift services running, in order
 # to decrease the likelihood that they will be selected as upstreams.
 
-from charmhelpers.core import hookenv, unitdata
+import atexit
 import json
 import sys
 import time
+
+from charmhelpers.core import hookenv, unitdata
 
 import ntp_source_score
 
@@ -134,8 +136,6 @@ def check_score(seconds=None):
 
 
 def get_score(max_seconds=86400):
-    import atexit
-
     # if auto_peers is disabled, don't display saved score from unitdata
     if not hookenv.config('auto_peers'):
         return {}
