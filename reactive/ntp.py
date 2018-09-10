@@ -101,9 +101,6 @@ def upgrade():
 
 @when_not('ntp.installed')
 def install():
-    hookenv.status_set('maintenance', 'Updating package database')
-    fetch.apt_update(fatal=True)
-
     pkgs = implementation.packages_to_install()
     hookenv.status_set('maintenance', 'Installing ' + ', '.join(pkgs))
     fetch.apt_install(pkgs, fatal=True)
