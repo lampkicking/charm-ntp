@@ -53,7 +53,7 @@ def _check_host_sync(device_id):
             else:
                 return None
         except Exception:
-            log('Hyper-V host time sync status file {} not found'.format(statefile))
+            log('Unable to determine Hyper-V host time sync status from {}'.format(statefile))
             return None
     else:
         return None
