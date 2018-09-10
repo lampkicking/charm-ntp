@@ -281,8 +281,11 @@ def get_first_line(cmd):
 
 def get_nagios_result(cmd):
     """Get the first line of the nagios result & strip performance data"""
-    output = get_first_line(cmd)
-    return output.split(' | ')[0]
+    try:
+        output = get_first_line(cmd)
+        return output.split(' | ')[0]
+    except Exception:
+        return None
 
 
 @hook('update-status')
