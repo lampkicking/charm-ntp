@@ -134,6 +134,8 @@ def check_score(seconds=None):
 
 
 def get_score(max_seconds=86400):
+    import atexit
+
     # if auto_peers is disabled, don't display saved score from unitdata
     if not hookenv.config('auto_peers'):
         return {}
@@ -145,7 +147,7 @@ def get_score(max_seconds=86400):
     # use a dedicated unitdata storage db to ensure the score is always saved regardless of hook completion
     path = default_kv.db_path.replace('.db', '') + '.ntp_scoring.db'
     kv = unitdata.Storage(path=path)
-    hookenv.atexit(kv.flush)
+    atexit.register(kv.flush)
 
     score = kv.get('ntp_score', default=default_score)
     if score is not None:
