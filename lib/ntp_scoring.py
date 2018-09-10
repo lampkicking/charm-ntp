@@ -1,5 +1,5 @@
 
-# Copyright (c) 2017 Canonical Ltd
+# Copyright (c) 2017-2018 Canonical Ltd
 # License: GPLv3
 # Author: Paul Gear
 
