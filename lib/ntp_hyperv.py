@@ -73,7 +73,8 @@ def _disable_host_sync(device_id):
 
 def sync_status():
     """Check Hyper-V host clock sync status; disable if detected.
-    Report a sensible status message if we attempted changes."""
+
+    Return a sensible status message if we attempted changes."""
     device_id = _find_host_sync_device()
     if device_id and _check_host_sync(device_id):
         if _disable_host_sync(device_id):
