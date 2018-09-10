@@ -33,7 +33,9 @@ def log(msg):
 
 def get_score():
     hookenv.status_set('maintenance', 'Retrieving suitability score')
-    return ntp_scoring.get_score()
+    score = ntp_scoring.get_score()
+    hookenv.status_set('active', 'Retrieved suitability score')
+    return score
 
 
 def get_relation_attributes(relation_name, attribute=None):
