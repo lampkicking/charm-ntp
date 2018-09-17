@@ -1,31 +1,24 @@
 #!/usr/bin/make
-PYTHON := /usr/bin/env PYTHONPATH=$(PWD)/hooks python3
+TEAM := $(LOGNAME)
+PYTHONPATH := $(PYTHONPATH):$(PWD)/reactive:$(PWD)/lib
+PYTHON := python3
 CHARM_NAME := ntp
 CS_CHANNEL := candidate
-CSDEST := cs:~$(LOGNAME)/$(CHARM_NAME)
+CSDEST := cs:~$(TEAM)/$(CHARM_NAME)
 
 test:
 	$(PYTHON) -m unittest unit_tests/test_ntp_*.py
 
 lint: test
-	@python3 -m flake8 --max-line-length=120 --exclude hooks/charmhelpers hooks
-	@charm proof
+	@python3 -m flake8 --max-line-length=120 reactive
 
-bin/charm_helpers_sync.py:
-	@mkdir -p bin
-	@curl -o bin/charm_helpers_sync.py https://raw.githubusercontent.com/juju/charm-helpers/master/tools/charm_helpers_sync/charm_helpers_sync.py
+build: lint
+	charm build
 
-ch-sync: bin/charm_helpers_sync.py
-	$(PYTHON) bin/charm_helpers_sync.py -c charm-helpers-sync.yaml
-
-sync: ch-sync
-
-git:
-	git push $(LOGNAME)
-
-cspush: lint
-	version=`charm push . $(CSDEST) | awk '/^url:/ {print $$2}'` && \
+push: build
+	cd $(JUJU_REPOSITORY)/builds/$(CHARM_NAME) && \
+	    version=`charm push . $(CSDEST) | awk '/^url:/ {print $$2}'` && \
 	    charm release --channel $(CS_CHANNEL) $$version
 
-upgrade: cspush
-	juju upgrade-charm $(CHARM_NAME)
+upgrade: push
+	juju upgrade-charm $(CHARM_NAME) --channel $(CS_CHANNEL)

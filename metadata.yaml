@@ -13,14 +13,10 @@ description: |
 tags:
   - misc
 series:
+  - bionic
   - xenial
   - trusty
-  - artful
-  - bionic
 provides:
-  nrpe-external-master:
-    interface: nrpe-external-master
-    scope: container
   ntpmaster:
     interface: ntp
 requires:

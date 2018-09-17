@@ -10,7 +10,7 @@ import ntp_scoring
 class TestNtpScoring(unittest.TestCase):
 
     def setUp(self):
-        patcher = patch('charmhelpers.core.hookenv.log')
+        patcher = patch('ntp_scoring.log')
         patcher.start()
         self.addCleanup(patcher.stop)
         patcher = patch('charmhelpers.core.unitdata.kv')

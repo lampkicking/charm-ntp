@@ -1,0 +1,11 @@
+includes:
+    - interface:juju-info
+    - layer:basic
+    - layer:nagios
+    - layer:ntpmon
+
+options:
+    ntpmon:
+        install-dir: /opt/ntpmon-ntp-charm
+
+repo: https://git.launchpad.net/ntp-charm

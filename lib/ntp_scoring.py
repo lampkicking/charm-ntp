@@ -1,5 +1,6 @@
 
 # Copyright (c) 2017 Canonical Ltd
+# License: GPLv3
 # Author: Paul Gear
 
 # This module retrieves the score calculated in ntp_source_score, and
@@ -9,15 +10,19 @@
 # to decrease the likelihood that they will be selected as upstreams.
 
 from charmhelpers.core import hookenv, unitdata
-import charmhelpers.fetch as fetch
 import json
+import sys
 import time
 
 import ntp_source_score
 
 
-def install_packages():
-    fetch.apt_install(["facter", "ntpdate", "python3-psutil", "virt-what"], fatal=False)
+def log(msg):
+    print(msg, file=sys.stderr)
+
+
+def packages_to_install():
+    return ["facter", "ntpdate", "python3-psutil", "virt-what"]
 
 
 def get_virt_type():
@@ -39,10 +44,10 @@ def get_virt_multiplier():
         # containers should be synchronized from their host
         return -1
     elif virt_type == 'physical':
-        hookenv.log('[SCORE] running on physical host - score bump 25%')
+        log('[SCORE] running on physical host - score bump 25%')
         return 1.25
     else:
-        hookenv.log('[SCORE] probably running in a VM - score bump 0%')
+        log('[SCORE] probably running in a VM - no score change')
         return 1
 
 
@@ -73,7 +78,7 @@ def get_package_divisor():
     # increase the divisor for each discovered process type
     divisor = 1
     for r in running:
-        hookenv.log('[SCORE] %s running - score divisor %.3f' % (r, running[r]))
+        log('[SCORE] %s running - score divisor %.3f' % (r, running[r]))
         divisor *= running[r]
     return divisor
 
@@ -92,21 +97,14 @@ def check_score(seconds=None):
     relation_sources = hookenv.relation_ids('master')
     score['master-relations'] = len(relation_sources)
     if relation_sources is not None and len(relation_sources) > 0:
-        hookenv.log('[SCORE] master relation configured - skipped scoring')
-        return score
-
-    # skip scoring if we're in a container
-    multiplier = get_virt_multiplier()
-    score['multiplier'] = multiplier
-    if multiplier <= 0:
-        hookenv.log('[SCORE] running in a container - skipped scoring')
+        log('[SCORE] master relation configured - skipped scoring')
         return score
 
     # skip scoring if auto_peers is off
     auto_peers = hookenv.config('auto_peers')
     score['auto-peers'] = auto_peers
     if not auto_peers:
-        hookenv.log('[SCORE] auto_peers is disabled - skipped scoring')
+        log('[SCORE] auto_peers is disabled - skipped scoring')
         return score
 
     # skip scoring if we have no sources
@@ -115,7 +113,14 @@ def check_score(seconds=None):
     pools = hookenv.config('pools').split()
     host_list = sources + peers + pools
     if len(host_list) == 0:
-        hookenv.log('[SCORE] No sources configured')
+        log('[SCORE] No sources configured')
+        return score
+
+    # skip scoring if we're in a container
+    multiplier = get_virt_multiplier()
+    score['multiplier'] = multiplier
+    if multiplier <= 0:
+        log('[SCORE] running in a container - skipped scoring')
         return score
 
     # Now that we've passed all those checks, check upstreams, calculate a score, and return the result
@@ -124,16 +129,25 @@ def check_score(seconds=None):
     score['host-list'] = host_list
     score['raw'] = ntp_source_score.get_source_score(host_list, verbose=True)
     score['score'] = score['raw'] * multiplier / divisor
-    hookenv.log('[SCORE] Suitability score: %.3f' % (score['score'],))
+    log('[SCORE] Suitability score: %.3f' % (score['score'],))
     return score
 
 
 def get_score(max_seconds=86400):
-    # Remove this if/when we convert the charm to reactive
-    kv = unitdata.kv()
+    # if auto_peers is disabled, don't display saved score from unitdata
+    if not hookenv.config('auto_peers'):
+        return {}
+
+    # get any score saved from an older charm version
+    default_kv = unitdata.kv()
+    default_score = default_kv.get('ntp_score')
+
+    # use a dedicated unitdata storage db to ensure the score is always saved regardless of hook completion
+    path = default_kv.db_path.replace('.db', '') + '.ntp_scoring.db'
+    kv = unitdata.Storage(path=path)
     hookenv.atexit(kv.flush)
 
-    score = kv.get('ntp_score')
+    score = kv.get('ntp_score', default=default_score)
     if score is not None:
         saved_time = score.get('time', 0)
     else:
@@ -143,7 +157,7 @@ def get_score(max_seconds=86400):
     if score is None or now - saved_time > max_seconds:
         score = check_score(now)
         kv.set('ntp_score', score)
-        hookenv.log('[SCORE] saved %s' % (json.dumps(score),))
+        log('[SCORE] saved %s' % (json.dumps(score),))
 
     return score
 
@@ -151,7 +165,7 @@ def get_score(max_seconds=86400):
 def get_score_string(score=None, max_seconds=86400):
     if score is None:
         score = get_score(max_seconds)
-    if not hookenv.config('auto_peers') or 'raw' not in score:
+    if 'raw' not in score:
         return None
     return 'score %.3f (%.1f) at %s' % (
         score['score'],

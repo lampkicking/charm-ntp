@@ -1,89 +1,88 @@
 Overview
 --------
 
-NTP provides network based time services to ensure synchronization of time
-across computers.
+Network Time Protocol is a network-based time service to ensure synchronization
+of time across a network of computers.  It is defined in RFC5905.
+
 
 Usage
 -----
 
 The ntp charm is a subordinate charm which is designed for use with other
-principal charms.  It can be used in two ways:
+principal charms.  In its basic mode, the ntp charm is used to configure NTP
+in service units to talk directly to a set of NTP time sources:
 
-Standalone
-==========
-
-In this mode, the ntp charm is used to configure NTP in other service units to
-talk directly to a set of NTP time sources:
-
-    juju deploy ntp
+    juju deploy cs:ntp
     juju add-relation ntp myservice
 
 By default this charm uses the standard set of NTP pool servers which are
-configured in the ntp Ubuntu package.
+configured in Ubuntu.  In the event that you don't wish every juju unit on your
+network to talk directly to the public NTP pool on the Internet, there are
+several options.
 
-However, if you have a handy atomic clock on your network which you would prefer
-to use then you can add that:
 
-    juju set ntp source=myatomiclock.local.net
+Manual
+======
 
-You can also specify multiple sources and peers:
+If you already have a set of reliable, non-juju NTP servers in your network,
+simply configure them as sources or peers and disable the default list of pool
+servers.  For example:
 
-    juju set ntp source="mac1.local.net mac2.local.net mac3.local.net"
-    juju set ntp peers="mac1.local.net mac2.local.net mac3.local.net"
-
-To disable the default list of pool servers, set that to the empty string:
-
+    juju set ntp source="myatomiclock.local.net"
+    juju set ntp peers="ntp1.local.net ntp2.local.net ntp3.local.net"
     juju set ntp pools=""
 
-Sources, peers, and pools should be space separated.
+Sources, peers, and pools should be space-separated.
 
-If you have a large number of nodes which need to keep close sync with one
-another but need to keep upstream traffic to a minimum, try auto_peers:
 
+Multiple strata
+===============
+
+In network environments where general outbound network access to the Internet
+is not avaliable or you don't have a good internal time source such as an
+atomic clock, you can use selected juju units to act as an NTP service for
+other units.
+
+On machines which do have outbound NTP access to the Internet:
+
+    juju deploy cs:ubuntu --num-units=4
+    juju deploy cs:ntp ntp-stratum2
+    juju add-relation ubuntu ntp-stratum2
+
+On other juju units which do not have outbound NTP access:
+
+    juju deploy my-service
+    juju deploy cs:ntp ntp-stratum3
+    juju add-relation my-service ntp-stratum3
+    juju add-relation ntp-stratum2 ntp-stratum3
+    juju set ntp source="" peers="" pools=""
+
+
+Auto peers
+==========
+
+Auto peers implements multiple strata automatically, by testing upstream NTP
+connectivity, selecting the units with the best connectivity to comprise
+the upstream stratum, and configuring the remaining hosts to receive time from
+those units.
+
+    juju deploy my-service
+    juju deploy cs:ntp
+    juju add-relation my-service ntp
     juju set ntp auto_peers=true
 
-This will select the most suitable units for connecting with upstream, and
-configure the remaining units to receive time from those units.
 
-Mastered
-========
+NTP Implementations
+-------------------
 
-In the event that you don't wish every server on your network to talk directly to
-your configured time sources, you can use this charm in-conjunction with the ntpmaster
-charm:
+Under Ubuntu 17.10 (Artful Aardvark) and earlier, the default implementation
+of NTP is ntpd, from the Network Time Foundation.  Ubuntu 18.04 (Bionic
+Beaver) moves to chrony as the default NTP implementation.  These decisions
+are also reflected in this charm.
 
-    juju deploy ntp
-    juju deploy ntpmaster
-    juju add-relation ntp ntpmaster
 
-This allows you to gate NTP services to a single set of servers within your control.
+Monitoring
+----------
 
-This might have application in more secure network environments where general
-outbound network access to the Internet is not avaliable or desirable and you don't
-have a good internal time source such as an atomic clock.
-
-You can of course have more than one ntpmaster:
-
-    juju add-unit ntpmaster
-
-All services that the ntp charm is subordinate to will be configured to sync with
-all avaliable masters.
-
-The ntpmaster charm supports the same "source" configuration that the ntp charm does.
-
-The ntp charm can also be used in place of the ntpmaster charm when coupled with
-another primary charm:
-
-    juju deploy ntp ntp-masters
-    juju deploy ubuntu --num-units=4
-    juju add-relation ubuntu ntp-masters
-    juju set ntp-masters auto_peers=true
-
-    juju deploy ntp
-    juju deploy my-other-service --num-units=30
-    juju add-relation ntp my-other-service
-    juju add-relation ntp ntp-masters
-
-This is the recommended method, since this charm provides better monitoring and
-more flexible configuration than ntpmaster.
+This charm may be related to the NRPE charm for monitoring by Nagios.
+The telegraf charm also includes support for gathering NTP metrics.
