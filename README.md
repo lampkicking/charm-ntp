@@ -1,8 +1,9 @@
 Overview
 --------
 
-Network Time Protocol is a network-based time service to ensure synchronization
-of time across a network of computers.  It is defined in RFC5905.
+Network Time Protocol (NTP) is a network-based time service to ensure
+synchronization of time across a network of computers.  It is defined in
+RFC5905.
 
 
 Usage
@@ -28,7 +29,7 @@ If you already have a set of reliable, non-juju NTP servers in your network,
 simply configure them as sources or peers and disable the default list of pool
 servers.  For example:
 
-    juju set ntp source="myatomiclock.local.net"
+    juju set ntp source="myatomicclock.local.net"
     juju set ntp peers="ntp1.local.net ntp2.local.net ntp3.local.net"
     juju set ntp pools=""
 

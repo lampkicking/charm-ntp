@@ -1,5 +1,5 @@
 
-# Copyright (c) 2017 Canonical Ltd
+# Copyright (c) 2017-2018 Canonical Ltd
 # License: GPLv3
 # Author: Paul Gear
 
@@ -9,10 +9,12 @@
 # for nodes with OpenStack ceph, nova, or swift services running, in order
 # to decrease the likelihood that they will be selected as upstreams.
 
-from charmhelpers.core import hookenv, unitdata
+import atexit
 import json
 import sys
 import time
+
+from charmhelpers.core import hookenv, unitdata
 
 import ntp_source_score
 
@@ -145,7 +147,7 @@ def get_score(max_seconds=86400):
     # use a dedicated unitdata storage db to ensure the score is always saved regardless of hook completion
     path = default_kv.db_path.replace('.db', '') + '.ntp_scoring.db'
     kv = unitdata.Storage(path=path)
-    hookenv.atexit(kv.flush)
+    atexit.register(kv.flush)
 
     score = kv.get('ntp_score', default=default_score)
     if score is not None:

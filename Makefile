@@ -10,7 +10,7 @@ test:
 	$(PYTHON) -m unittest unit_tests/test_ntp_*.py
 
 lint: test
-	@python3 -m flake8 --max-line-length=120 reactive
+	@python3 -m flake8 --max-line-length=120 lib reactive
 
 build: lint
 	charm build

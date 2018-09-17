@@ -1,17 +1,18 @@
 
-# Copyright (c) 2017 Canonical Ltd
+# Copyright (c) 2017-2018 Canonical Ltd
 # License: GPLv3
 # Author: Paul Gear
 
 import os
 import sys
 
-"""Hyper-V host clock sync handling for NTP charm"""
+"""Hyper-V host clock sync handling for NTP charm
 
-# References:
-# - https://bugs.launchpad.net/bugs/1676635
-# - https://patchwork.kernel.org/patch/9525945/
-# - https://social.msdn.microsoft.com/Forums/en-US/8c0a1026-0b02-405a-848e-628e68229eaf/i-have-a-lot-of-time-has-been-changed-in-the-journal-of-my-linux-boxes?forum=WAVirtualMachinesforWindows # NOQA: E501
+References:
+- https://bugs.launchpad.net/bugs/1676635
+- https://patchwork.kernel.org/patch/9525945/
+- https://social.msdn.microsoft.com/Forums/en-US/8c0a1026-0b02-405a-848e-628e68229eaf/
+"""
 
 _device_class = '9527e630-d0ae-497b-adce-e80ab0175caf'
 _vmbus_dir = '/sys/bus/vmbus/'
@@ -52,7 +53,7 @@ def _check_host_sync(device_id):
             else:
                 return None
         except Exception:
-            log('Hyper-V host time sync status file {} not found'.format(statefile))
+            log('Unable to determine Hyper-V host time sync status from {}'.format(statefile))
             return None
     else:
         return None
@@ -72,7 +73,8 @@ def _disable_host_sync(device_id):
 
 def sync_status():
     """Check Hyper-V host clock sync status; disable if detected.
-    Report a sensible status message if we attempted changes."""
+
+    Return a sensible status message if we attempted changes."""
     device_id = _find_host_sync_device()
     if device_id and _check_host_sync(device_id):
         if _disable_host_sync(device_id):

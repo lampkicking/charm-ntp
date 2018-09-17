@@ -1,19 +1,18 @@
 #!/usr/bin/python3
 
-from charmhelpers.contrib.charmsupport import nrpe
-from charmhelpers.core import hookenv, host, unitdata
-from charms import layer
-import charmhelpers.fetch as fetch
 import os
 import subprocess
 import sys
 
+from charmhelpers.contrib.charmsupport import nrpe
+from charmhelpers.core import hookenv, host, unitdata
+from charms import layer
+import charmhelpers.fetch as fetch
 from charms.reactive import (
     main,
     remove_state,
     set_state,
 )
-
 from charms.reactive.decorators import (
     hook,
     when,
@@ -34,7 +33,9 @@ def log(msg):
 
 def get_score():
     hookenv.status_set('maintenance', 'Retrieving suitability score')
-    return ntp_scoring.get_score()
+    score = ntp_scoring.get_score()
+    hookenv.status_set('active', 'Retrieved suitability score')
+    return score
 
 
 def get_relation_attributes(relation_name, attribute=None):
@@ -100,9 +101,6 @@ def upgrade():
 
 @when_not('ntp.installed')
 def install():
-    hookenv.status_set('maintenance', 'Updating package database')
-    fetch.apt_update(fatal=True)
-
     pkgs = implementation.packages_to_install()
     hookenv.status_set('maintenance', 'Installing ' + ', '.join(pkgs))
     fetch.apt_install(pkgs, fatal=True)
@@ -112,7 +110,7 @@ def install():
     fetch.apt_install(pkgs, fatal=False)
 
     implementation.save_config()
-    hookenv.status_set('active', 'Installed required packages')
+    hookenv.status_set('maintenance', 'Installed required packages')
     set_state('ntp.installed')
     remove_state('ntp.configured')
 
@@ -283,8 +281,11 @@ def get_first_line(cmd):
 
 def get_nagios_result(cmd):
     """Get the first line of the nagios result & strip performance data"""
-    output = get_first_line(cmd)
-    return output.split(' | ')[0]
+    try:
+        output = get_first_line(cmd)
+        return output.split(' | ')[0]
+    except Exception:
+        return None
 
 
 @hook('update-status')
