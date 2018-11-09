@@ -14,6 +14,7 @@ tags:
   - misc
 series:
   - bionic
+  - cosmic
   - xenial
   - trusty
 provides:
