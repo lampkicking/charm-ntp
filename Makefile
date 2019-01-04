@@ -1,16 +1,16 @@
 #!/usr/bin/make
 TEAM := $(LOGNAME)
-PYTHONPATH := $(PYTHONPATH):$(PWD)/reactive:$(PWD)/lib
+PYTHONPATH := $(PYTHONPATH):$(PWD)/reactive:$(PWD)/lib:$(PWD)/actions
 PYTHON := python3
 CHARM_NAME := ntp
 CS_CHANNEL := candidate
 CSDEST := cs:~$(TEAM)/$(CHARM_NAME)
 
 test:
-	$(PYTHON) -m unittest unit_tests/test_ntp_*.py
+	$(PYTHON) -m unittest unit_tests/test_*.py
 
 lint: test
-	@python3 -m flake8 --max-line-length=120 lib reactive
+	@python3 -m flake8 --max-line-length=120 actions lib reactive
 
 build: lint
 	charm build

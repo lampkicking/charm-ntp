@@ -1,0 +1,9 @@
+diagnostics:
+    description: |
+        Display NTP diagnostics for analysis by support personnel.
+        The diagnostics gathered are:
+        - kernel version
+        - active & available clock sources
+        - source & peer statistics
+        - tracking variables
+        - last 10 lines of detailed log files present
