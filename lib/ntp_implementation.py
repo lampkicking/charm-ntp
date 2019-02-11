@@ -15,6 +15,9 @@ import shutil
 class NTPImplementation:
     """Base class for NTP implementations."""
 
+    def client_executable(self):
+        raise NotImplementedError
+
     def config_file(self):
         raise NotImplementedError
 
@@ -26,6 +29,9 @@ class NTPImplementation:
 
     def _config_file_template(self):
         raise NotImplementedError
+
+    def detect_presence(self):
+        return os.path.exists(self.client_executable())
 
     def package_name(self):
         raise NotImplementedError
@@ -63,6 +69,9 @@ class NTPImplementation:
 
 class Chronyd(NTPImplementation):
 
+    def client_executable(self):
+        return "/usr/bin/chronyc"
+
     def config_file(self):
         return "/etc/chrony/chrony.conf"
 
@@ -87,6 +96,9 @@ class Chronyd(NTPImplementation):
 
 class NTPd(NTPImplementation):
 
+    def client_executable(self):
+        return "/usr/bin/ntpq"
+
     def config_file(self):
         return "/etc/ntp.conf"
 
@@ -104,6 +116,14 @@ class NTPd(NTPImplementation):
 
     def _startup_template_file(self):
         return "ntp.default"
+
+
+def detect_implementation():
+    implementation = get_implementation()
+    if implementation.detect_presence():
+        return implementation.package_name()
+    else:
+        return None
 
 
 def get_implementation(implementation_name=None):
