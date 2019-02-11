@@ -19,17 +19,28 @@ import charmhelpers.core.hookenv as hookenv
 import ntp_implementation
 
 
+class UnsupportedNTPImplementationError(RuntimeError):
+
+    pass
+
+
 def command(key, cmd):
-    """Return a tuple containing the given key and the results of running the command as the value.
-    Strip trailing whitespace from the output."""
+    """Run the command; return a (key, value) tuple of the given key and the command's results.
+
+    Trailing whitespace is stripped from the output.
+    """
     output = subprocess.check_output(cmd.split())
     return (key, output.decode().rstrip())
 
 
 def tail(keyprefix, pattern, regex=None):
-    """Return tuples containing the key and the last 10 lines of each extant file matching the given glob pattern.
-    The key will be constructed from the prefix and the resulting components of regex.
-    If regex is False, construct the key from the prefix and the basename of the matched file."""
+    """Return iterable of tuples of the key and the last 10 lines of matching files.
+
+    Files are matched by the provided glob pattern. The key will be constructed
+    from the prefix and the resulting components of the regexp match on the
+    filename. If regex is false, the key is constructed from the prefix and the
+    basename of the matched file.
+    """
     if regex:
         match = re.compile(regex)
     for file in glob.glob(pattern):
@@ -54,7 +65,7 @@ def kernel_actions():
         tail(
             'kernel',
             '/sys/devices/system/clocksource/clocksource*/*_clocksource',
-            '.*/(clocksource\d+)/(available|current)',
+            r'.*/(clocksource\d+)/(available|current)',
         ),
     )
 
@@ -64,7 +75,7 @@ def chronyd_actions():
     return itertools.chain(
         [command('ntp.sources', '/usr/bin/chronyc -n sources')],
         [command('ntp.tracking', '/usr/bin/chronyc -n tracking')],
-        tail('ntp.log', '/var/log/chrony/*.log', '/var/log/chrony/(.*)\.log'),
+        tail('ntp.log', '/var/log/chrony/*.log', r'/var/log/chrony/(.*)\.log'),
     )
 
 
@@ -81,13 +92,13 @@ def collect_actions():
     """Collect the action data for the current NTP implementation and kernel."""
     implementation = ntp_implementation.detect_implementation()
     if implementation is None:
-        raise ValueError('No NTP implementation detected')
+        raise UnsupportedNTPImplementationError('No NTP implementation detected')
     elif implementation == 'chrony':
         implementation_actions = chronyd_actions
     elif implementation == 'ntp':
         implementation_actions = ntpd_actions
     else:
-        raise ValueError('Unsupported NTP implementation {} detected'.format(implementation))
+        raise UnsupportedNTPImplementationError('Unsupported NTP implementation {} detected'.format(implementation))
     return itertools.chain(
         [('ntp.implementation', implementation)],
         kernel_actions(),
@@ -102,18 +113,17 @@ def print_action_dict(actions):
 
 
 def main():
-    try:
-        actions = dict(collect_actions())
-        if len(sys.argv) > 1 and sys.argv[1] == "--debug":
-            print_action_dict(actions)
-        else:
-            hookenv.action_set(actions)
-    except ValueError as ve:
-        hookenv.action_fail(str(ve))
-        sys.exit(1)
-    except Exception as e:
-        hookenv.action_fail('Python exception detected; please review log')
-        raise e
+    if len(sys.argv) > 1 and sys.argv[1] == "--debug":
+        print_action_dict(dict(collect_actions()))
+    else:
+        try:
+            hookenv.action_set(dict(collect_actions()))
+        except UnsupportedNTPImplementationError as e:
+            hookenv.action_fail(str(e))
+            sys.exit(1)
+        except Exception as e:
+            hookenv.action_fail('Python exception detected; please review log')
+            raise e
 
 
 if __name__ == '__main__':

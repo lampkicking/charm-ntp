@@ -7,14 +7,13 @@ import unittest.mock as mock
 import diagnostics
 
 
-_file_contents = {
-    '/tmp/apple': b'This is an apple\nHere are more apples.\nAnd more.\n',
-    '/tmp/apricot': b'This is an apricot\n',
-    '/tmp/avocado': b'This is an avocado\n',
-}
+class TestNTPActionDiagnostics(unittest.TestCase):
 
-
-class TestNtpActionDiagnostics(unittest.TestCase):
+    _file_contents = {
+        '/tmp/apple': b'This is an apple\nHere are more apples.\nAnd more.\n',
+        '/tmp/apricot': b'This is an apricot\n',
+        '/tmp/avocado': b'This is an avocado\n',
+    }
 
     def test_command(self):
         testkey = 'os.uname'
@@ -38,7 +37,7 @@ class TestNtpActionDiagnostics(unittest.TestCase):
         """Mock method to return a list of file names
         when glob is called with the correct arguments."""
         if names == '/tmp/a*':
-            return sorted(_file_contents.keys())
+            return sorted(TestNTPActionDiagnostics._file_contents.keys())
         else:
             return []
 
@@ -46,8 +45,8 @@ class TestNtpActionDiagnostics(unittest.TestCase):
     def _fake_check_output(args):
         """Mock method to return a byte array containing fake file contents
         when check_output is called with the correct arguments."""
-        if args[0] == 'tail' and args[1] in _file_contents:
-            return _file_contents[args[1]]
+        if args[0] == 'tail' and args[1] in TestNTPActionDiagnostics._file_contents:
+            return TestNTPActionDiagnostics._file_contents[args[1]]
         else:
             return b''
 
@@ -72,9 +71,18 @@ class TestNtpActionDiagnostics(unittest.TestCase):
             mock.call(['tail', '/tmp/apricot']),
             mock.call(['tail', '/tmp/avocado']),
         ])
-        self.assertEqual(results[0], ('test.glob.apple', _file_contents['/tmp/apple'].decode().rstrip()))
-        self.assertEqual(results[1], ('test.glob.apricot', _file_contents['/tmp/apricot'].decode().rstrip()))
-        self.assertEqual(results[2], ('test.glob.avocado', _file_contents['/tmp/avocado'].decode().rstrip()))
+        self.assertEqual(results[0], (
+            'test.glob.apple',
+            TestNTPActionDiagnostics._file_contents['/tmp/apple'].decode().rstrip(),
+        ))
+        self.assertEqual(results[1], (
+            'test.glob.apricot',
+            TestNTPActionDiagnostics._file_contents['/tmp/apricot'].decode().rstrip(),
+        ))
+        self.assertEqual(results[2], (
+            'test.glob.avocado',
+            TestNTPActionDiagnostics._file_contents['/tmp/avocado'].decode().rstrip(),
+        ))
 
     @mock.patch('os.path.exists')
     @mock.patch('subprocess.check_output')
@@ -96,8 +104,14 @@ class TestNtpActionDiagnostics(unittest.TestCase):
             mock.call(['tail', '/tmp/apple']),
             mock.call(['tail', '/tmp/apricot']),
         ])
-        self.assertEqual(results[0], ('test.glob.apple', _file_contents['/tmp/apple'].decode().rstrip()))
-        self.assertEqual(results[1], ('test.glob.apricot', _file_contents['/tmp/apricot'].decode().rstrip()))
+        self.assertEqual(results[0], (
+            'test.glob.apple',
+            TestNTPActionDiagnostics._file_contents['/tmp/apple'].decode().rstrip(),
+        ))
+        self.assertEqual(results[1], (
+            'test.glob.apricot',
+            TestNTPActionDiagnostics._file_contents['/tmp/apricot'].decode().rstrip(),
+        ))
         self.assertEqual(len(results), 2)
 
     @mock.patch('ntp_implementation.detect_implementation')
@@ -108,17 +122,17 @@ class TestNtpActionDiagnostics(unittest.TestCase):
             diagnostics.collect_actions()
             detect_implementation.reset_mock()
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(diagnostics.UnsupportedNTPImplementationError):
             test_collect_action(None)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(diagnostics.UnsupportedNTPImplementationError):
             test_collect_action(1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(diagnostics.UnsupportedNTPImplementationError):
             test_collect_action('')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(diagnostics.UnsupportedNTPImplementationError):
             test_collect_action('ntpsec')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(diagnostics.UnsupportedNTPImplementationError):
             test_collect_action('openntpd')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(diagnostics.UnsupportedNTPImplementationError):
             test_collect_action('systemd.timesyncd')
 
     @staticmethod
