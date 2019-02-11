@@ -3,8 +3,14 @@
 import os
 import unittest
 import unittest.mock as mock
+import sys
 
-import diagnostics
+# This is necessary to stop charmhelpers.contrib.templating.jinja (called from ntp_implementation,
+# called from diagnostics) from trying to install apt packages, by giving it an existing jinja2 module.
+# The templating engine isn't required for these tests.
+sys.modules['jinja2'] = mock.MagicMock()
+
+import diagnostics      # NOQA: E402
 
 
 class TestNTPActionDiagnostics(unittest.TestCase):
