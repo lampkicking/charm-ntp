@@ -89,6 +89,7 @@ class TestNTPActionDiagnostics(unittest.TestCase):
             'test.glob.avocado',
             TestNTPActionDiagnostics._file_contents['/tmp/avocado'].decode().rstrip(),
         ))
+        self.assertEqual(len(results), 3)
 
     @mock.patch('os.path.exists')
     @mock.patch('subprocess.check_output')
@@ -96,7 +97,7 @@ class TestNTPActionDiagnostics(unittest.TestCase):
     def test_tail_with_regex(self, glob, check_output, exists):
         testkey = 'test.glob'
         testfiles = '/tmp/a*'
-        testregex = '^/tmp/(ap.*)'
+        testregex = r'^/tmp/(ap.*)'
         exists.return_value = True
         glob.side_effect = self._fake_glob
         check_output.side_effect = self._fake_check_output
