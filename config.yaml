@@ -58,3 +58,10 @@ options:
     description: >
         Use iburst for all peers/sources, not just those received via the
         master relation.
+  ntp_package:
+    default: ""
+    type: string
+    description: >
+        Setting as "ntp" will manually install NTPd package or "chrony" will
+	install Chronyd package; disregard of the available OS version. If
+	empty, it will take the version available for the OS

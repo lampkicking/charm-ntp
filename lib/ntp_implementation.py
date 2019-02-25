@@ -5,6 +5,9 @@
 
 """NTP implementation details"""
 
+from charmhelpers.core.hookenv import (
+    config as config_get,
+)
 import charmhelpers.contrib.templating.jinja as templating
 import charmhelpers.core.host
 import charmhelpers.osplatform
@@ -136,6 +139,11 @@ def get_implementation(implementation_name=None):
     # anything else: auto mode
     platform = charmhelpers.osplatform.get_platform()
     version = float(charmhelpers.core.host.lsb_release()['DISTRIB_RELEASE'])
+
+    if config_get('ntp_package') is "ntp":
+        return NTPd()
+    elif config_get('ntp_package') is "chrony":
+        return Chronyd()
 
     if platform == 'ubuntu':
         if version > 18:
