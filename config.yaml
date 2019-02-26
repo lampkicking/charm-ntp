@@ -63,5 +63,5 @@ options:
     type: string
     description: >
         Setting as "ntp" will manually install NTPd package or "chrony" will
-	install Chronyd package; disregard of the available OS version. If
-	empty, it will take the version available for the OS
+        install Chronyd package; disregard of the available OS version. If
+        empty, it will take the version available for the OS
