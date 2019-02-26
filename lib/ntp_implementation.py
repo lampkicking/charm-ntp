@@ -140,9 +140,9 @@ def get_implementation(implementation_name=None):
     platform = charmhelpers.osplatform.get_platform()
     version = float(charmhelpers.core.host.lsb_release()['DISTRIB_RELEASE'])
 
-    if config_get('ntp_package') is "ntp":
+    if config_get('ntp_package') == "ntp":
         return NTPd()
-    elif config_get('ntp_package') is "chrony":
+    elif config_get('ntp_package') == "chrony":
         return Chronyd()
 
     if platform == 'ubuntu':
