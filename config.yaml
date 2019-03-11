@@ -44,6 +44,8 @@ options:
     default: false
     type: boolean
     description: >
+        DEPRECATED - please DO NOT use if you have more than approximately
+        20 units in this service.
         Automatically select the most appropriate units in the service to
         be a service stratum connecting with upstream NTP servers, and use
         those units as time sources for the remaining units.
@@ -51,6 +53,8 @@ options:
     default: 6
     type: int
     description: >
+        DEPRECATED - please DO NOT use if you have more than approximately
+        20 units in this service.
         How many units should attempt to connect with upstream NTP servers?
   use_iburst:
     default: true
