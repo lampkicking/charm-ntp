@@ -5,9 +5,6 @@
 
 """NTP implementation details"""
 
-from charmhelpers.core.hookenv import (
-    config as config_get,
-)
 import charmhelpers.contrib.templating.jinja as templating
 import charmhelpers.core.host
 import charmhelpers.core.hookenv
