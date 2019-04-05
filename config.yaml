@@ -44,6 +44,8 @@ options:
     default: false
     type: boolean
     description: >
+        DEPRECATED - please DO NOT use if you have more than approximately
+        20 units in this service.
         Automatically select the most appropriate units in the service to
         be a service stratum connecting with upstream NTP servers, and use
         those units as time sources for the remaining units.
@@ -51,6 +53,8 @@ options:
     default: 6
     type: int
     description: >
+        DEPRECATED - please DO NOT use if you have more than approximately
+        20 units in this service.
         How many units should attempt to connect with upstream NTP servers?
   use_iburst:
     default: true
@@ -62,6 +66,8 @@ options:
     default: ""
     type: string
     description: >
-        Setting as "ntp" will manually install NTPd package or "chrony" will
-        install Chronyd package; disregard of the available OS version. If
-        empty, it will take the version available for the OS
+        If set to "ntp" the ntp package will be installed and configured, or if set to
+        "chrony" the chrony package will be installed and configured. If unspecified
+        the appropriate package will be selected based on the operating system.
+        Please note that the use of ntp on Ubuntu bionic or later is not recommended as it
+        does not receive security updates.

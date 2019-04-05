@@ -10,6 +10,7 @@ from charmhelpers.core.hookenv import (
 )
 import charmhelpers.contrib.templating.jinja as templating
 import charmhelpers.core.host
+import charmhelpers.core.hookenv
 import charmhelpers.osplatform
 import os.path
 import shutil
@@ -57,11 +58,13 @@ class NTPImplementation:
 
     def set_config(self, config):
         with open(self.config_file(), "w") as conffile:
-            conffile.write(templating.render(self._config_file_template(), config))
+            conffile.write(templating.render(
+                self._config_file_template(), config))
 
     def set_startup_options(self, config):
         with open(self._startup_config_file(), "w") as startup:
-            startup.write(templating.render(self._startup_template_file(), config))
+            startup.write(templating.render(
+                self._startup_template_file(), config))
 
     def _startup_config_file(self):
         raise NotImplementedError
@@ -140,9 +143,10 @@ def get_implementation(implementation_name=None):
     platform = charmhelpers.osplatform.get_platform()
     version = float(charmhelpers.core.host.lsb_release()['DISTRIB_RELEASE'])
 
-    if config_get('ntp_package') == "ntp":
+    ntp_package = charmhelpers.core.hookenv.config('ntp_package')
+    if ntp_package == "ntp":
         return NTPd()
-    elif config_get('ntp_package') == "chrony":
+    elif ntp_package == "chrony":
         return Chronyd()
 
     if platform == 'ubuntu':
