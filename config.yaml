@@ -66,6 +66,8 @@ options:
     default: ""
     type: string
     description: >
-        Setting as "ntp" will manually install NTPd package or "chrony" will
-        install Chronyd package; disregard of the available OS version. If
-        empty, it will take the version available for the OS
+        If set to "ntp" the ntp package will be installed and configured, or if set to
+        "chrony" the chrony package will be installed and configured. If unspecified
+        the appropriate package will be selected based on the operating system.
+        Please note that the use of ntp on Ubuntu bionic or later is not recommended as it
+        does not receive security updates.
