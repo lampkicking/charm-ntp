@@ -296,6 +296,26 @@ def assess_status():
         hookenv.application_version_set(version)
 
     status = []
+    if hookenv.config('verify_ntp_servers'):
+        failed_servers = []
+        if hookenv.config('source'):
+            for server in hookenv.config('source').split():
+                try:
+                    subprocess.check_call(
+                        ["ntpdate", "-qd", server],
+                        stderr=subprocess.DEVNULL,
+                    )
+                except subprocess.CalledProcessError:
+                    failed_servers.append(server)
+                    continue
+
+            if failed_servers:
+                _servers = '; '.join(failed_servers)
+                hookenv.status_set(
+                    'blocked',
+                    'NTP servers are not reachable: %s' % _servers
+                )
+                return
 
     # service status
     if host.service_running(implementation.service_name()):

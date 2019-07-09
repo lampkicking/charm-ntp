@@ -1,4 +1,10 @@
 options:
+  verify_ntp_servers:
+    default: false
+    type: boolean
+    description: >
+      If configured to True, charm will automatically try to verify that
+      given NTP servers are accessible and raise an error, if they aren't.
   source:
     default: ""
     type: string
