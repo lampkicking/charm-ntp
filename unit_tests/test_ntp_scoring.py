@@ -2,8 +2,10 @@
 
 from random import shuffle
 from unittest.mock import Mock, patch
+import sys
 import unittest
 
+sys.path.append('lib')
 import ntp_scoring
 
 

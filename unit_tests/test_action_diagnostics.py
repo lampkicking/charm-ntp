@@ -10,6 +10,7 @@ import sys
 # The templating engine isn't required for these tests.
 sys.modules['jinja2'] = mock.MagicMock()
 
+sys.path.append('actions')
 import diagnostics      # NOQA: E402
 
 
