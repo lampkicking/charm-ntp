@@ -10,7 +10,7 @@ clean:
 	@echo "Cleaning files"
 	@rm -rf ./.tox
 	@rm -rf ./.pytest_cache
-	@rm -rf ./tests/unit/__pycache__ ./reactive/__pycache__ ./lib/__pycache__
+	@rm -rf ./unit_tests/__pycache__ ./reactive/__pycache__ ./lib/__pycache__ ./actions/__pycache__
 	@rm -rf ./.coverage ./.unit-state.db
 
 test: unittest
