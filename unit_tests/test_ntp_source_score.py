@@ -18,8 +18,8 @@ ntpdate_output = """
 reference time:    dda179ee.3ec34fdd  Mon, Oct 30 2017 20:14:06.245
 originate timestamp: dda17a5b.af7c528b  Mon, Oct 30 2017 20:15:55.685
 transmit timestamp:  dda17a5b.80b4dc04  Mon, Oct 30 2017 20:15:55.502
-filter delay:  0.54126  0.36757  0.36655  0.36743 
-         0.00000  0.00000  0.00000  0.00000 
+filter delay:  0.54126  0.36757  0.36655  0.36743
+         0.00000  0.00000  0.00000  0.00000
 filter offset: 0.099523 0.012978 0.011831 0.011770
          0.000000 0.000000 0.000000 0.000000
 delay 0.36655, dispersion 0.01126
@@ -28,8 +28,8 @@ offset 0.011831
 reference time:    dda17695.69e65b2f  Mon, Oct 30 2017 19:59:49.413
 originate timestamp: dda17a5b.afcec2dd  Mon, Oct 30 2017 20:15:55.686
 transmit timestamp:  dda17a5b.80bb2488  Mon, Oct 30 2017 20:15:55.502
-filter delay:  0.36520  0.36487  0.36647  0.36604 
-         0.00000  0.00000  0.00000  0.00000 
+filter delay:  0.36520  0.36487  0.36647  0.36604
+         0.00000  0.00000  0.00000  0.00000
 filter offset: 0.012833 0.013758 0.013731 0.013629
          0.000000 0.000000 0.000000 0.000000
 delay 0.36487, dispersion 0.00049
@@ -38,8 +38,8 @@ offset 0.013758
 reference time:    dda1782c.6aec9646  Mon, Oct 30 2017 20:06:36.417
 originate timestamp: dda17a5b.d2d04ef4  Mon, Oct 30 2017 20:15:55.823
 transmit timestamp:  dda17a5b.b37c4098  Mon, Oct 30 2017 20:15:55.701
-filter delay:  0.28581  0.28406  0.28551  0.28596 
-         0.00000  0.00000  0.00000  0.00000 
+filter delay:  0.28581  0.28406  0.28551  0.28596
+         0.00000  0.00000  0.00000  0.00000
 filter offset: -0.00802 -0.00854 -0.00791 -0.00787
          0.000000 0.000000 0.000000 0.000000
 delay 0.28406, dispersion 0.00050
@@ -48,8 +48,8 @@ offset -0.008544
 reference time:    dda17735.4a03e3ca  Mon, Oct 30 2017 20:02:29.289
 originate timestamp: dda17a5c.1634d231  Mon, Oct 30 2017 20:15:56.086
 transmit timestamp:  dda17a5b.e6934fad  Mon, Oct 30 2017 20:15:55.900
-filter delay:  0.37044  0.37077  0.37050  0.37086 
-         0.00000  0.00000  0.00000  0.00000 
+filter delay:  0.37044  0.37077  0.37050  0.37086
+         0.00000  0.00000  0.00000  0.00000
 filter offset: 0.013993 0.013624 0.013425 0.013362
          0.000000 0.000000 0.000000 0.000000
 delay 0.37044, dispersion 0.00046
@@ -58,8 +58,8 @@ offset 0.013993
 reference time:    dda17695.69e65b2f  Mon, Oct 30 2017 19:59:49.413
 originate timestamp: dda17a5c.4944bb52  Mon, Oct 30 2017 20:15:56.286
 transmit timestamp:  dda17a5c.19cf5199  Mon, Oct 30 2017 20:15:56.100
-filter delay:  0.36873  0.36823  0.36911  0.36781 
-         0.00000  0.00000  0.00000  0.00000 
+filter delay:  0.36873  0.36823  0.36911  0.36781
+         0.00000  0.00000  0.00000  0.00000
 filter offset: 0.014635 0.014599 0.014166 0.014239
          0.000000 0.000000 0.000000 0.000000
 delay 0.36781, dispersion 0.00026
@@ -68,8 +68,8 @@ offset 0.014239
 reference time:    dda179ee.3ec34fdd  Mon, Oct 30 2017 20:14:06.245
 originate timestamp: dda17a5c.7bbd3828  Mon, Oct 30 2017 20:15:56.483
 transmit timestamp:  dda17a5c.4cf92e99  Mon, Oct 30 2017 20:15:56.300
-filter delay:  0.36554  0.36617  0.36673  0.36618 
-         0.00000  0.00000  0.00000  0.00000 
+filter delay:  0.36554  0.36617  0.36673  0.36618
+         0.00000  0.00000  0.00000  0.00000
 filter offset: 0.012466 0.012691 0.012863 0.012346
          0.000000 0.000000 0.000000 0.000000
 delay 0.36554, dispersion 0.00018
