@@ -2,8 +2,10 @@
 
 from unittest.mock import patch
 import math
+import sys
 import unittest
 
+sys.path.append('lib')
 from ntp_source_score import (
     get_delay_score,
     get_source_delays,
