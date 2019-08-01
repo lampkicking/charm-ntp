@@ -1,1 +1,8 @@
-__pycache__
+*.pyc
+*.swp
+*~
+.coverage
+.tox/
+.unit-state.db
+__pycache__/
+

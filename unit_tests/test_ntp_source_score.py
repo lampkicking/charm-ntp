@@ -11,7 +11,7 @@ from ntp_source_score import (
     get_source_delays,
     rms,
     run_cmd,
-)
+)  # NOQA: E402
 
 ntpdate_output = """
 ...
