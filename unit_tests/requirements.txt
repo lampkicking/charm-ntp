@@ -1,0 +1,6 @@
+charmhelpers
+charms.reactive
+mock
+psutil
+pytest
+pytest-cov

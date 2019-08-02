@@ -6,7 +6,7 @@ import sys
 import unittest
 
 sys.path.append('lib')
-import ntp_scoring
+import ntp_scoring  # NOQA: E402
 
 
 class TestNtpScoring(unittest.TestCase):

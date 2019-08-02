@@ -6,11 +6,21 @@ CHARM_NAME := ntp
 CS_CHANNEL := candidate
 CSDEST := cs:~$(TEAM)/$(CHARM_NAME)
 
-test:
-	$(PYTHON) -m unittest unit_tests/test_*.py
+clean:
+	@echo "Cleaning files"
+	@rm -rf ./.tox
+	@rm -rf ./.pytest_cache
+	@rm -rf ./unit_tests/__pycache__ ./reactive/__pycache__ ./lib/__pycache__ ./actions/__pycache__
+	@rm -rf ./.coverage ./.unit-state.db
 
-lint: test
-	@python3 -m flake8 --max-line-length=120 actions lib reactive
+test: unittest
+
+unittest:
+	@tox -e unit
+
+lint:
+	@echo "Running flake8"
+	@tox -e lint
 
 build: lint
 	charm build
