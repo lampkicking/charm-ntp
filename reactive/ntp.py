@@ -289,6 +289,27 @@ def get_nagios_result(cmd):
 
 
 @hook('update-status')
+def prefer_non_dhcp_ntp_servers():
+    ntp_dhcp_conf = '/var/lib/ntp/ntp.conf.dhcp'
+    if not os.path.exists(ntp_dhcp_conf):
+        return
+
+    # Work around LP#1823098 and LP#1758775 to prefer the configured NTP servers
+    # over what gets given by DHCP. The ntpd start up script checks the
+    # timestamp of ntp_dhcp_conf to see if it's newer than ntp.conf so let's
+    # just remove it.
+    os.unlink(ntp_dhcp_conf)
+
+    # We also want to make sure ntp_dhcp_conf isn't written out in the future.
+    if os.path.exists('/etc/dhcp/dhclient-exit-hooks.d/ntp'):
+        os.unlink('/etc/dhcp/dhclient-exit-hooks.d/ntp')
+
+    # Remove ntp.configured flag so we ship out updated ntp.conf and restart
+    # ntpd.
+    remove_state('ntp.configured')
+
+
+@hook('update-status')
 def assess_status():
     package = implementation.package_name()
     version = fetch.get_upstream_version(package)
