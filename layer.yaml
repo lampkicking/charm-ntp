@@ -1,11 +1,24 @@
-includes:
-    - interface:juju-info
-    - layer:basic
-    - layer:nagios
-    - layer:ntpmon
+"includes":
+- "layer:options"
+- "layer:basic"
+- "interface:nrpe-external-master"
+- "interface:juju-info"
+- "layer:nagios"
+- "layer:ntpmon"
+"exclude": [".travis.yml", "tests", "tox.ini", "test-requirements.txt"]
+"options":
+  "basic":
+    "packages":
+    - "python3-psutil"
+    "python_packages": []
+    "use_venv": !!bool "true"
+    "include_system_packages": !!bool "false"
+  "ntpmon":
+    "install-dir": "/opt/ntpmon-ntp-charm"
 
-options:
-    ntpmon:
-        install-dir: /opt/ntpmon-ntp-charm
-
-repo: https://git.launchpad.net/ntp-charm
+    "user": "nobody"
+    "group": "nogroup"
+  "nagios": {}
+  "ntp": {}
+"repo": "https://git.launchpad.net/ntp-charm"
+"is": "ntp"

@@ -1,0 +1,944 @@
+{
+  "layers": [
+    {
+      "rev": "fcdcea4e5de3e1556c24e6704607862d0ba00a56",
+      "url": "layer:options"
+    },
+    {
+      "rev": "1d2489bff56daf2f8d1c06ee9248bb0094e4ad49",
+      "url": "layer:basic"
+    },
+    {
+      "rev": "47dfcd4920ef6317850a4837ef0057ab0092a18e",
+      "url": "layer:nagios"
+    },
+    {
+      "rev": "71acc7fb3d04455d1908f404e0637d67d31b5301",
+      "url": "layer:ntpmon"
+    },
+    {
+      "rev": "d6a14230812f6388fedf549f7e4a68a7837abd19",
+      "url": "ntp"
+    },
+    {
+      "rev": "4e2f90052b3c02031d09f10900c9e9cb22565dee",
+      "url": "interface:juju-info"
+    },
+    {
+      "rev": "2e0e1fdea6d83b55078200aacb537d60013ec5bc",
+      "url": "interface:nrpe-external-master"
+    }
+  ],
+  "signatures": {
+    ".build.manifest": [
+      "build",
+      "dynamic",
+      "unchecked"
+    ],
+    ".gitignore": [
+      "ntp",
+      "static",
+      "c8d619c48315c9946d9609e7fe322093012c18e9b384e5a1998782dce20bfb86"
+    ],
+    "COPYING.txt": [
+      "layer:ntpmon",
+      "static",
+      "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    ],
+    "LICENSE": [
+      "layer:basic",
+      "static",
+      "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    ],
+    "Makefile": [
+      "ntp",
+      "static",
+      "3c4b20727f23182e7110b2b26f75723104c55eb94680cd7cb3b2a9c0bdf84be7"
+    ],
+    "README.md": [
+      "ntp",
+      "static",
+      "0df00b07aa829f28e988559c50a329b01cf59a8fc5265e3f8da675b3a779a8c8"
+    ],
+    "README.txt": [
+      "layer:ntpmon",
+      "static",
+      "9f24bc7190d083d96b6bff74974fe8c96efb89d8332805f156fbf1ef07ad7a75"
+    ],
+    "actions.yaml": [
+      "ntp",
+      "dynamic",
+      "dda742f5339c3f4307c7162369dda40151854b878d898468172e88b251c5ff36"
+    ],
+    "actions/diagnostics": [
+      "ntp",
+      "static",
+      "d14444de1785eb7832b6383914866cebd76c84598ce210a27a7b70a947aaf6cb"
+    ],
+    "actions/diagnostics.py": [
+      "ntp",
+      "static",
+      "d14444de1785eb7832b6383914866cebd76c84598ce210a27a7b70a947aaf6cb"
+    ],
+    "bin/charm-env": [
+      "layer:basic",
+      "static",
+      "458c53532c19ee357cbf4209ccc7d811810718ba0ea3b0588b3d3ef040a44b8e"
+    ],
+    "bin/layer_option": [
+      "layer:options",
+      "static",
+      "e959bf29da4c5edff28b2602c24113c4df9e25cdc9f2aa3b5d46c8577b2a40cc"
+    ],
+    "config.yaml": [
+      "ntp",
+      "dynamic",
+      "c4e7ab621f1df7adfea20c878388789100eaf0a86896bff3fa8f929215402b5d"
+    ],
+    "copyright": [
+      "ntp",
+      "static",
+      "e8696d778fbb7660e58010557b0f35f1d3fe16167d514914ca18227bede887c6"
+    ],
+    "copyright.layer-basic": [
+      "layer:basic",
+      "static",
+      "f6740d66fd60b60f2533d9fcb53907078d1e20920a0219afce7182e2a1c97629"
+    ],
+    "copyright.layer-nagios": [
+      "layer:nagios",
+      "static",
+      "47b2363574909e748bcc471d9004780ac084b301c154905654b5b6f088474749"
+    ],
+    "copyright.layer-options": [
+      "layer:options",
+      "static",
+      "f6740d66fd60b60f2533d9fcb53907078d1e20920a0219afce7182e2a1c97629"
+    ],
+    "hooks/config-changed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/hook.template": [
+      "ntp",
+      "static",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/install": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/juju-info-relation-broken": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/juju-info-relation-changed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/juju-info-relation-departed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/juju-info-relation-joined": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/leader-elected": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/leader-settings-changed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/master-relation-broken": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/master-relation-changed": [
+      "ntp",
+      "static",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/master-relation-departed": [
+      "ntp",
+      "static",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/master-relation-joined": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/nrpe-external-master-relation-broken": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/nrpe-external-master-relation-changed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/nrpe-external-master-relation-departed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/nrpe-external-master-relation-joined": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntp-peers-relation-broken": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntp-peers-relation-changed": [
+      "ntp",
+      "static",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntp-peers-relation-departed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntp-peers-relation-joined": [
+      "ntp",
+      "static",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntpmaster-relation-broken": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntpmaster-relation-changed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntpmaster-relation-departed": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/ntpmaster-relation-joined": [
+      "ntp",
+      "static",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/post-series-upgrade": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/pre-series-upgrade": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/relations/juju-info/.gitignore": [
+      "interface:juju-info",
+      "static",
+      "315971ad9cc5d6ada2391f0940e1800149b211a18be3c7a8f396735d7978702b"
+    ],
+    "hooks/relations/juju-info/README.md": [
+      "interface:juju-info",
+      "static",
+      "745aade1bda4e3cb7b07109c8c7560b2f56e076fcd6e8298465c7f66a970cfa0"
+    ],
+    "hooks/relations/juju-info/__init__.py": [
+      "interface:juju-info",
+      "static",
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "hooks/relations/juju-info/docs/peers.md": [
+      "interface:juju-info",
+      "static",
+      "710be74f2673dd71a8a41d51417b109bfe68782cf527f100138b628fce531c87"
+    ],
+    "hooks/relations/juju-info/docs/provides.md": [
+      "interface:juju-info",
+      "static",
+      "f986015a7c6790057f694d91ccda2c281cf07634a2dfbe6607e67768a9d9f7b0"
+    ],
+    "hooks/relations/juju-info/docs/requires.md": [
+      "interface:juju-info",
+      "static",
+      "bbe0d5b69bfee4992adcfcbf974703e351027f23062dda20845616cb49878010"
+    ],
+    "hooks/relations/juju-info/interface.yaml": [
+      "interface:juju-info",
+      "static",
+      "0d0057ed0bda75157e8314a1259e1a8bb883d2f738ad1b731177e821b5b1b542"
+    ],
+    "hooks/relations/juju-info/make_docs": [
+      "interface:juju-info",
+      "static",
+      "136818e53eb2ee7c5a178c5793d1a06811bebfbeb8875b9fc8e425d93ad9b433"
+    ],
+    "hooks/relations/juju-info/peers.py": [
+      "interface:juju-info",
+      "static",
+      "3a778e2d89f736caf4e1e743ebc96d9ce53af7f3e0bef4b706dd74e5eb373b6e"
+    ],
+    "hooks/relations/juju-info/provides.py": [
+      "interface:juju-info",
+      "static",
+      "3a778e2d89f736caf4e1e743ebc96d9ce53af7f3e0bef4b706dd74e5eb373b6e"
+    ],
+    "hooks/relations/juju-info/pydocmd.yml": [
+      "interface:juju-info",
+      "static",
+      "78f3a1376cc4ef1c297a239104203f70701da29d089fefceb5323503422ee848"
+    ],
+    "hooks/relations/juju-info/requires.py": [
+      "interface:juju-info",
+      "static",
+      "3a778e2d89f736caf4e1e743ebc96d9ce53af7f3e0bef4b706dd74e5eb373b6e"
+    ],
+    "hooks/relations/juju-info/tox.ini": [
+      "interface:juju-info",
+      "static",
+      "caeace713d04686331d19b2d466e066e4123bd9197152ab99deb1a29a1501502"
+    ],
+    "hooks/relations/nrpe-external-master/README.md": [
+      "interface:nrpe-external-master",
+      "static",
+      "d8ed3bc7334f6581b12b6091923f58e6f5ef62075a095a4e78fb8f434a948636"
+    ],
+    "hooks/relations/nrpe-external-master/__init__.py": [
+      "interface:nrpe-external-master",
+      "static",
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "hooks/relations/nrpe-external-master/interface.yaml": [
+      "interface:nrpe-external-master",
+      "static",
+      "894f24ba56148044dae5b7febf874b427d199239bcbe1f2f55c3db06bb77b5f0"
+    ],
+    "hooks/relations/nrpe-external-master/provides.py": [
+      "interface:nrpe-external-master",
+      "static",
+      "e6ba708d05b227b139a86be59c83ed95a2bad030bc81e5819167ba5e1e67ecd4"
+    ],
+    "hooks/relations/nrpe-external-master/requires.py": [
+      "interface:nrpe-external-master",
+      "static",
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "hooks/relations/ntp/peers.py": [
+      "ntp",
+      "static",
+      "306199a264ba0da42446abe2e07bd52c4c062918ee94cf8113b23d8e72b434f6"
+    ],
+    "hooks/start": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/stop": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/update-status": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "hooks/upgrade-charm": [
+      "ntp",
+      "dynamic",
+      "f976e7ff3e347d44dac22626507f2a88042ba913aeebca7ffdcd5f6179b83683"
+    ],
+    "icon.svg": [
+      "ntp",
+      "static",
+      "28a586eb37f50fc2f95c056812a47ab2a4a55c71e4f85c218fcee7e4028f8669"
+    ],
+    "layer.yaml": [
+      "ntp",
+      "dynamic",
+      "685d470504fa1040bbbc8f08606f874c069c02336c73332c46da82cbe2444372"
+    ],
+    "lib/charms/layer/__init__.py": [
+      "layer:basic",
+      "static",
+      "dfe0d26c6bf409767de6e2546bc648f150e1b396243619bad3aa0553ab7e0e6f"
+    ],
+    "lib/charms/layer/basic.py": [
+      "layer:basic",
+      "static",
+      "445652dbaa1f0b84a7215da185bcbdff097bb9bbbce11b4c2dbbff90f77719a9"
+    ],
+    "lib/charms/layer/execd.py": [
+      "layer:basic",
+      "static",
+      "fda8bd491032db1db8ddaf4e99e7cc878c6fb5432efe1f91cadb5b34765d076d"
+    ],
+    "lib/charms/layer/nagios.py": [
+      "layer:nagios",
+      "static",
+      "0246710bdbea844356007a64409907d93e6e94a289d83266e8b7c5d921fb3a6c"
+    ],
+    "lib/charms/layer/options.py": [
+      "layer:options",
+      "static",
+      "8ae7a07d22542fc964f2d2bee8219d1c78a68dace70a1b38d36d4aea47b1c3b2"
+    ],
+    "lib/ntp_hyperv.py": [
+      "ntp",
+      "static",
+      "55cd071dd93d1b14b76f7182af767ef8bd61ef107b81cd1d93b240e688e2f9b6"
+    ],
+    "lib/ntp_implementation.py": [
+      "ntp",
+      "static",
+      "c992b521aa04ab1ccbf8ad0f01c1d3202ed6298bcb38de2014211d7b66c2792d"
+    ],
+    "lib/ntp_scoring.py": [
+      "ntp",
+      "static",
+      "b0bdb16c7f199336b2c1be62943849aa4c2ad9ad0cd78cbb7023fc2ebaa3e780"
+    ],
+    "lib/ntp_source_score.py": [
+      "ntp",
+      "static",
+      "55bf461e991490d076fef3e7336c9536622a1ce949754589305c6e51444ff4c8"
+    ],
+    "metadata.yaml": [
+      "ntp",
+      "dynamic",
+      "215b11ed35d030eaffe78c804ae28859e11770c10aa52b32f7115dcaad2cf188"
+    ],
+    "misc/collectd-ipset.sh": [
+      "layer:ntpmon",
+      "static",
+      "f815e9952190506baca3543d4a1c7f23f9abe5fcc3fffee55834a58c20834ceb"
+    ],
+    "misc/collectd-types.db": [
+      "layer:ntpmon",
+      "static",
+      "7638ad05af214653734f77eb0f4d3349e49559a5a1b59df167b279c41a5985f1"
+    ],
+    "misc/loopstatsplot": [
+      "layer:ntpmon",
+      "static",
+      "97afc3b361399ca692ffcab3e09f62ba8316c02733e5b9e00b67d2a85c86d3f5"
+    ],
+    "misc/ntpqplot": [
+      "layer:ntpmon",
+      "static",
+      "f83d6549fb5a9f03b8b82676686359cffad1773003a198b4314a43e44308f5bf"
+    ],
+    "misc/peerstatsplot": [
+      "layer:ntpmon",
+      "static",
+      "2b04144bf0a5d1c432f1f77f87b20140c61e94809b8048868a46e9d900511bab"
+    ],
+    "pytest.ini": [
+      "ntp",
+      "static",
+      "d352717d7c065f880363f7268857368ba4d3ed1796fa9ed6f5d88fa7af1023a1"
+    ],
+    "reactive/__init__.py": [
+      "layer:basic",
+      "static",
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "reactive/ntp.py": [
+      "ntp",
+      "static",
+      "580d9b72632bd1dfa39e1192928db020ff1bb6cad3eb60689ab6d3a6b0954098"
+    ],
+    "reactive/ntpmon.py": [
+      "layer:ntpmon",
+      "static",
+      "dccbb22f1a5ac2ea60ce998eae07b170dfce2be7124a902128de0dc6bd39ec02"
+    ],
+    "requirements.txt": [
+      "ntp",
+      "static",
+      "828322c22377708c47aba864953fcced7ccf6a6f0a99f6ca9139c08696dbe2bb"
+    ],
+    "src/alert.py": [
+      "layer:ntpmon",
+      "static",
+      "a431122ecdb1f15038938fb4a9955fb208a2b5a63d4328c48b0ce898b02d18aa"
+    ],
+    "src/check_ntpmon.py": [
+      "layer:ntpmon",
+      "static",
+      "fabe75ae0b1a6c2f2e183025ef0f5237f111eca74ebb33a1b73dd645051e8f1c"
+    ],
+    "src/classifier.py": [
+      "layer:ntpmon",
+      "static",
+      "b3819140cfbec274664babd9677e378fe404253f557a678bb66eccc78c6b5dba"
+    ],
+    "src/metrics.py": [
+      "layer:ntpmon",
+      "static",
+      "d913d7f5a6a2ea2ce13162adec1b7292b0ea031c526e21049e81108136dd07ad"
+    ],
+    "src/ntpmon-telegraf.systemd": [
+      "layer:ntpmon",
+      "static",
+      "112b89d0d1145d786bc9dc8f57f851258df354741b747bd542ab89a30d5cb013"
+    ],
+    "src/ntpmon-telegraf.upstart": [
+      "layer:ntpmon",
+      "static",
+      "14575aeb73e729d00fb441fe6dffa67b32549dff1c5b52a593694fce4dabc3b4"
+    ],
+    "src/ntpmon.py": [
+      "layer:ntpmon",
+      "static",
+      "fd826353c3461d272b3450783e494e7feb44197c4858337088317bab9757637a"
+    ],
+    "src/peers.py": [
+      "layer:ntpmon",
+      "static",
+      "cd69abf23d3bcd21b8a0549d693832b14ec5bd2e1d5dc868ec595257f9e8926b"
+    ],
+    "src/process.py": [
+      "layer:ntpmon",
+      "static",
+      "25e12acf4e8ba76b241f2eb198b1cc3f9e23e69a947e0e07d6002e76c7150509"
+    ],
+    "src/readvar.py": [
+      "layer:ntpmon",
+      "static",
+      "a55889a8c82cb071e47c2932ab70f47157249e1ec2d3990b8f34c578563230af"
+    ],
+    "src/trace.py": [
+      "layer:ntpmon",
+      "static",
+      "5fc2263a96550ef7c4e1ab0906f27e37166263fd68d07262a1bb2a82dd03a441"
+    ],
+    "templates/chrony.conf": [
+      "ntp",
+      "static",
+      "484bb52dd8fa99bfb3f03cca52d8d9c29d2afc54f8952c38c73b820f69d35be7"
+    ],
+    "templates/chrony.default": [
+      "ntp",
+      "static",
+      "1f81116f85274dfe9f522a4a68d5c2798b6d02a77ec55274a04bb99c551b2b5e"
+    ],
+    "templates/ntp.conf": [
+      "ntp",
+      "static",
+      "3eb8c2ac316faeaa454754513cf3f2afe258afad6339b87b14729506377308e5"
+    ],
+    "templates/ntp.default": [
+      "ntp",
+      "static",
+      "308fd5c53a76d80b3fbb161743f22aa7d9dba9adca80615e43f4b8357c0c6fa6"
+    ],
+    "testdata/OK/010b868f-3362-46f0-9211-bcc7eeebf6b6": [
+      "layer:ntpmon",
+      "static",
+      "75593df555b43010afda57ee814567e4da16cd29d619e6b72eca87a01718627f"
+    ],
+    "testdata/OK/0584bd92-12c9-4e6e-b200-1cc5bd7d12a9": [
+      "layer:ntpmon",
+      "static",
+      "3818441180c61f04d0d944b2a182bceaaa7ccbb6a1b078bd8202d66f1b90d04b"
+    ],
+    "testdata/OK/0f9ce132-c38c-4da3-baab-78c9d9e55dff": [
+      "layer:ntpmon",
+      "static",
+      "7aeaa1dbf33dcbe24ad4dd5dede9bb17b04a608666679eb6c469255717288666"
+    ],
+    "testdata/OK/13508fbf-6671-4db1-996b-e5151c3eebeb": [
+      "layer:ntpmon",
+      "static",
+      "1003a399346a93f9e11065d92c8b5c2803c4523d7ceec76c3f56c61d4fa25624"
+    ],
+    "testdata/OK/1d4a29cc-db3a-4014-b261-cbdf654932d8": [
+      "layer:ntpmon",
+      "static",
+      "d42e1f8e7f8ecc50452d64304d3839852dc3f4e259d7efae827f5ff0178e49f6"
+    ],
+    "testdata/OK/1fa9522d-6cf6-4060-8e34-cf74e736c908": [
+      "layer:ntpmon",
+      "static",
+      "fac5387f4d035dc85d8992a4459bd3d725b319661db813947062b382f7d26a54"
+    ],
+    "testdata/OK/20c0726b-90c0-48ae-825e-3895775d20e4": [
+      "layer:ntpmon",
+      "static",
+      "423b1fad10c6fb7979822d4f933ed7948c7d178d4639aaa593176084e54827a2"
+    ],
+    "testdata/OK/20e55515-8dc7-4ef4-afd8-5d1b7cb167eb": [
+      "layer:ntpmon",
+      "static",
+      "ca9d0201c8beb9f9f3c3ba3c86670edb343523a77eb81ef3f08f4a673d6728bc"
+    ],
+    "testdata/OK/2c9c5b9a-7cfb-4b48-837d-c1a73ded4c96": [
+      "layer:ntpmon",
+      "static",
+      "357c44b0b96d0f43ae87816191e310f2873e302f9cf2784f7a7b85dfac9cc418"
+    ],
+    "testdata/OK/308ae4a1-0467-42b2-b1b0-a77be02eb27c": [
+      "layer:ntpmon",
+      "static",
+      "9e5e1f13138fb6153b08e232bef1ccf5750b1d21679fbfe2f563cb8e949f3401"
+    ],
+    "testdata/OK/310c47af-7572-4bb3-8d79-3677861e3ed0": [
+      "layer:ntpmon",
+      "static",
+      "163fd505a5a67f54f3a7733e15c811fe6a0287543d0605f0317218cc97d2ca03"
+    ],
+    "testdata/OK/3387fbea-50fe-45a9-bf91-5c0b1bcb774d": [
+      "layer:ntpmon",
+      "static",
+      "319c86be83ec595025a912e30d554084c9552e9c80c14fb6c7e945c167cd5551"
+    ],
+    "testdata/OK/33cad921-a0d8-41ef-874f-bdcdbd8ff17b": [
+      "layer:ntpmon",
+      "static",
+      "bb2356b1d2a6cad95ad2b827e4a33685891aa096303bd80a259288e814305500"
+    ],
+    "testdata/OK/362e6989-d083-4108-8e64-c699fe9b89da": [
+      "layer:ntpmon",
+      "static",
+      "36fb8de4bc7b3a2e4c7a0417066632fcbc199e4a918d3b829a04afbc0b5db38e"
+    ],
+    "testdata/OK/38bb2bf9-56c9-4ecb-8d8a-b2c5b8b31546": [
+      "layer:ntpmon",
+      "static",
+      "1af3f33f7697762b68d0fbf254327b69cefaf84d94acab6ae35df6c8797c5a1b"
+    ],
+    "testdata/OK/401b137e-9857-4e34-8b89-6a8f31d61baa": [
+      "layer:ntpmon",
+      "static",
+      "619932dc3be8fc8c36690b35b654904a678d84a5c683390daab02c31f71b7f5d"
+    ],
+    "testdata/OK/5133a530-e637-4c91-bd08-4d872f55f395": [
+      "layer:ntpmon",
+      "static",
+      "51b0112d68113a6d03b26d67b44c7b4aaf109d822b9421c3e9b5b0893658148e"
+    ],
+    "testdata/OK/513a8194-41b2-4d14-acc8-7765ce6583f0": [
+      "layer:ntpmon",
+      "static",
+      "d5f9e226a8dd4e771707be64b325faad60b8a71c512ed2818c2fc1acdd9446f3"
+    ],
+    "testdata/OK/54b67d45-1392-4cab-ab02-cdfce5a0218b": [
+      "layer:ntpmon",
+      "static",
+      "c5c2a607db85a9ecbd5d71e3e89411a8fed78f97afbe11cf1fec646c7527257f"
+    ],
+    "testdata/OK/5b0f7511-a95b-4ef3-ba0f-9a4d377372bc": [
+      "layer:ntpmon",
+      "static",
+      "38edd60d44d42ff165781018eecad2dfe0a8aaedf89eaa224f3b39153b7da384"
+    ],
+    "testdata/OK/5b628294-a5ed-4bf5-a2c3-c3da0da2d9c1": [
+      "layer:ntpmon",
+      "static",
+      "a008fbfa80b30d00fd60e3ff437f316c903086a5d3d3354c9ac9fa10486d3912"
+    ],
+    "testdata/OK/5bf704ca-ca71-4c8b-9474-0f95e7c31f82": [
+      "layer:ntpmon",
+      "static",
+      "eba8fb560b02cf3829c2d553a9f52fd113b979634266850c87a8c69b1103663e"
+    ],
+    "testdata/OK/61d6015f-33e4-4dce-a3ac-8a285f61a579": [
+      "layer:ntpmon",
+      "static",
+      "cbb26433ee804b5c067df1cf0098a89fe98ad2c7237cb0b9123a10c8deb8b595"
+    ],
+    "testdata/OK/68dd8a4e-d510-47fa-a5eb-03ccb140b8bf": [
+      "layer:ntpmon",
+      "static",
+      "676cc7de1ce414d3bc5ab2554044b3110448eadcd6760b704315b519b750a8a7"
+    ],
+    "testdata/OK/6aea351b-7487-43b3-bad3-b274523fab5c": [
+      "layer:ntpmon",
+      "static",
+      "f6b322dbcf088cab155725c694d216303bd197ea6d593095fba8d974f06580f3"
+    ],
+    "testdata/OK/6df99cd7-949c-4fbe-81ca-dc7a6445f8e5": [
+      "layer:ntpmon",
+      "static",
+      "4ff10a02466b98522890d8949307eef1e845046e85015098856dbd017a2183b7"
+    ],
+    "testdata/OK/743ab340-06f3-4006-adac-e3ec3a26ed0a": [
+      "layer:ntpmon",
+      "static",
+      "e413d8334be19b6b154b6c88365a29ea4f145732796e9b72cace9d009a5b6835"
+    ],
+    "testdata/OK/854b195a-399e-40d3-8b50-0ee093010bcf": [
+      "layer:ntpmon",
+      "static",
+      "1b0a431b406e8659198d32db57228eed6089907d42736c41c2f2b369e0f404b7"
+    ],
+    "testdata/OK/85fc02f8-c0bd-4fee-b025-58853e65c430": [
+      "layer:ntpmon",
+      "static",
+      "87fd8e2ecfc36576d2ab47c02d91111e51b391711cfd1d3e34cbd1d55be52493"
+    ],
+    "testdata/OK/8ac715c1-01f8-4e5b-b93f-6f19c0ec102b": [
+      "layer:ntpmon",
+      "static",
+      "0ba696a76956d811e684ffb330a904bd6a9ac738a714fd99c7936df25cb10040"
+    ],
+    "testdata/OK/a0bd118f-0161-4fba-ad1b-8b1be50849b8": [
+      "layer:ntpmon",
+      "static",
+      "7f4a0a648f91c9f6159dfe8b2da47b99b59d8ea950391ca890650ed7106566c1"
+    ],
+    "testdata/OK/a403eaf8-aed0-407d-9e5a-6b7ddd10cd0a": [
+      "layer:ntpmon",
+      "static",
+      "902b5e7457a518bd4b6a37901cbe028ba8a3d19c6a5e4db13fd3426c485bd00f"
+    ],
+    "testdata/OK/a53c8975-d9bc-46e3-a7cc-1c3f4e36f6a8": [
+      "layer:ntpmon",
+      "static",
+      "19aec8ef5207455b8f1c337eeaca7e9bd49f5c6020e1b901fbf71fb12d161871"
+    ],
+    "testdata/OK/b06b78d0-c046-4995-9873-83d7b45c09da": [
+      "layer:ntpmon",
+      "static",
+      "f29d48279ace8f5ea3dbe977f5fe55582e5dd37d74dc47c76b5bbefaed7a96d3"
+    ],
+    "testdata/OK/b0cd857f-3465-45c3-80d6-96074fbc2767": [
+      "layer:ntpmon",
+      "static",
+      "28981e6b290ec00089d98646522b2567cb6f9288030daed9968ae507a60f89b1"
+    ],
+    "testdata/OK/b556a6c7-970c-403c-b8f5-a42fe7fc6ecd": [
+      "layer:ntpmon",
+      "static",
+      "ae2ef8d90153a9fac921cd015482aaa3685fc957e4a231a1655fb331dbf63394"
+    ],
+    "testdata/OK/b7565064-b52f-4c51-9219-6171fe98eada": [
+      "layer:ntpmon",
+      "static",
+      "f7fd65ce5c040234bc6f17b3e5aed4b0e90036c887bede3de76e4ebe4301178c"
+    ],
+    "testdata/OK/b98c42c8-5438-4405-904d-d7fe37746940": [
+      "layer:ntpmon",
+      "static",
+      "78186df087d314d2769f894a48f31838e041e1ec1fcefd3f564c35089359f526"
+    ],
+    "testdata/OK/bb85903c-de93-4f19-b78e-7b03b580a118": [
+      "layer:ntpmon",
+      "static",
+      "936e5f93ebafcf8fb2903d6a9cfe214c54063c20c365e4206c0d97dda9add62f"
+    ],
+    "testdata/OK/bdd29df5-8976-4470-8860-27d4d161bc54": [
+      "layer:ntpmon",
+      "static",
+      "6edc18bd8cf50a7c47d5ba4ae9d1df34a70b4662edf9c754765bf4fb27e98b82"
+    ],
+    "testdata/OK/be65e4c8-97ed-4c37-8f1b-f842f9aa7753": [
+      "layer:ntpmon",
+      "static",
+      "de2eea39139b6c3461f53d00e79ce3a18c885e0b74924c0feae7da918a332d87"
+    ],
+    "testdata/OK/c781047e-c7b6-45f8-911f-c0eb9d045871": [
+      "layer:ntpmon",
+      "static",
+      "6f5a4cad3d1b69052356b18c39eccfc52adc7a070788d0f8ef2af335c922c311"
+    ],
+    "testdata/OK/c9fbd5ac-ccf8-4a02-9260-f183f423477f": [
+      "layer:ntpmon",
+      "static",
+      "6d6d4ea9d42db5874f78bc1436da2d3933f1450cbcb26350224ba46c09af505e"
+    ],
+    "testdata/OK/ca55d458-87a1-4f22-8739-599da875e916": [
+      "layer:ntpmon",
+      "static",
+      "ee9fb66711277ee2e5e836836150fe7b3baa6942c8febe5158a8410717a94830"
+    ],
+    "testdata/OK/cd3d05d0-24ba-47e9-a665-b909506ddc95": [
+      "layer:ntpmon",
+      "static",
+      "3ce9e4934b29fbeae090619a3c6b515dc4765dcbecf6fc8f69f72c740858b6a3"
+    ],
+    "testdata/OK/d82d2510-d219-464d-b7e1-4bd4f03cccc4": [
+      "layer:ntpmon",
+      "static",
+      "66236cde85e9c7e404118614a52f53f5dda4071c2451dfa6c2396782f9f57f01"
+    ],
+    "testdata/OK/d973472b-6ff5-4a4e-bf67-1ec5b28268de": [
+      "layer:ntpmon",
+      "static",
+      "9383ca905a373c9674f1e6ba11f1a7d5c2df92d5cb5e9a3eb48f69a3fda49ebf"
+    ],
+    "testdata/OK/da977abd-b2f6-4e69-be8e-8080b3de9273": [
+      "layer:ntpmon",
+      "static",
+      "60fa5fd5adcff7d7d5907930b2da8752ef43bbc9198fe90d7cfb8829bc7e438b"
+    ],
+    "testdata/OK/dbb4722c-14b7-4009-869a-494738f51034": [
+      "layer:ntpmon",
+      "static",
+      "2112e199c07c028df187b78e0f08f8333db345bffb3edc385fbe04eb25942393"
+    ],
+    "testdata/OK/f2d83881-b4e3-4679-ae6c-1cd8fd1b0740": [
+      "layer:ntpmon",
+      "static",
+      "815476c02c2eb834b3aef7579c5b6a439da110f067e278b06fe6e68dd14c1fa3"
+    ],
+    "testdata/OK/f331bcd8-4b5f-45d2-bb9c-ca3b1027aec7": [
+      "layer:ntpmon",
+      "static",
+      "fc43085bf500a888db9136f4cca03d636f7872c58e0b0c08f03316313502e21c"
+    ],
+    "testdata/OK/fbc5efa3-6ad2-469f-b633-3ed1db40123d": [
+      "layer:ntpmon",
+      "static",
+      "9e3f3701d60c49680b94c4e70acad3b35592889bb8ee5fb84f6f904db9b7dab9"
+    ],
+    "testdata/testdata.sh": [
+      "layer:ntpmon",
+      "static",
+      "e12f7a813b6e4b6448f403408bd9759b7d0eab6582bbe09dac16fff98ce1db34"
+    ],
+    "tests/00-setup": [
+      "ntp",
+      "static",
+      "05265d64497c6d40cc80076dc474b266482ddad020ad8b87ce7b78241d9399fa"
+    ],
+    "tests/10-deploy-test.py": [
+      "ntp",
+      "static",
+      "b1341bbf30e153daf93e33158e3280af0c66d15e050283f1c614cf372387cdd1"
+    ],
+    "tox.ini": [
+      "ntp",
+      "static",
+      "655d8fb0d6881d027cdb2d8e0d55650d1b836d58c5e35faaf71b13fa778dea87"
+    ],
+    "unit_tests/requirements.txt": [
+      "ntp",
+      "static",
+      "a73cd1bdc9fc9afe0e3cb96b32112a281fb16da4bf8e49a1532996cea91a101a"
+    ],
+    "unit_tests/test_action_diagnostics.py": [
+      "ntp",
+      "static",
+      "e664a2d9e40e4c9582a0dccbfcaf08981f175d974537e9c01a80fe4fcceb335f"
+    ],
+    "unit_tests/test_check_ntpmon.py": [
+      "layer:ntpmon",
+      "static",
+      "a92e913ca2e4429e39113b6818e47092dc7dd82112b9b38153e7c8d54d9ba263"
+    ],
+    "unit_tests/test_classifier.py": [
+      "layer:ntpmon",
+      "static",
+      "ff8d3168070cfcde2550cc04fee388e3a974987cc36b1ca87e108f27f749951f"
+    ],
+    "unit_tests/test_ntp_hooks.py": [
+      "ntp",
+      "static",
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "unit_tests/test_ntp_scoring.py": [
+      "ntp",
+      "static",
+      "291a7d3f32e1df16bd1e5bce31f8bd8297efcd552dfce3bbcec92469b6d2564b"
+    ],
+    "unit_tests/test_ntp_source_score.py": [
+      "ntp",
+      "static",
+      "f2485703af3541256ac5e17a830feb2e73ad8dddbe67086344439a7220e733c3"
+    ],
+    "unit_tests/test_peers.py": [
+      "layer:ntpmon",
+      "static",
+      "0a4d98a4cdd786b5915aa59398c8c1d8a6140a88fbc46921b7c52d47736b728a"
+    ],
+    "version": [
+      "ntp",
+      "dynamic",
+      "788cf5c602c03482d7aa8391ff27b12462fdf9ecb078c024ff44f376e115847b"
+    ],
+    "wheelhouse/Jinja2-2.10.3.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "9fe95f19286cfefaa917656583d020be14e7859c6b0252588391e47db34527de"
+    ],
+    "wheelhouse/MarkupSafe-1.1.1.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"
+    ],
+    "wheelhouse/PyYAML-5.3.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615"
+    ],
+    "wheelhouse/Tempita-0.5.2.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "cacecf0baa674d356641f1d406b8bff1d756d739c46b869a54de515d08e6fc9c"
+    ],
+    "wheelhouse/charmhelpers-0.20.7.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "e0f8d005d39cded1b0c5997d8ef1d90832341c67ebeb4a334ad1eb348fbd803a"
+    ],
+    "wheelhouse/charms.reactive-1.3.0.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "82d2c614c82d64bf56e913990f22663e5de64b99db15838abfd9a064f1cc2f51"
+    ],
+    "wheelhouse/netaddr-0.7.19.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "38aeec7cdd035081d3a4c306394b19d677623bf76fa0913f6695127c7753aefd"
+    ],
+    "wheelhouse/pip-18.1.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "c0a292bd977ef590379a3f05d7b7f65135487b67470f6281289a94e015650ea1"
+    ],
+    "wheelhouse/pyaml-19.12.0.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "b3f636b467864319d7ded1558f86bb305b8612a274f5d443a62dc5eceb1b7176"
+    ],
+    "wheelhouse/setuptools-41.6.0.zip": [
+      "layer:basic",
+      "dynamic",
+      "6afa61b391dcd16cb8890ec9f66cc4015a8a31a6e1c2b4e0c464514be1a3d722"
+    ],
+    "wheelhouse/setuptools_scm-1.17.0.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "70a4cf5584e966ae92f54a764e6437af992ba42ac4bca7eb37cc5d02b98ec40a"
+    ],
+    "wheelhouse/six-1.13.0.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "30f610279e8b2578cab6db20741130331735c781b56053c59c4076da27f06b66"
+    ],
+    "wheelhouse/wheel-0.33.6.tar.gz": [
+      "layer:basic",
+      "dynamic",
+      "10c9da68765315ed98850f8e048347c3eb06dd81822dc2ab1d4fde9dc9702646"
+    ]
+  }
+}
