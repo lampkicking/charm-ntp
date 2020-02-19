@@ -14,9 +14,9 @@ tags:
   - misc
 series:
   - bionic
-  - cosmic
   - xenial
   - trusty
+  - focal
 provides:
   ntpmaster:
     interface: ntp
