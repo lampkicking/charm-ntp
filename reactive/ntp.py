@@ -90,8 +90,18 @@ def get_peer_sources(topN=6):
         return map(lambda x: x[0], topNhosts)
 
 
-@hook('upgrade-charm')
+@hook('upgrade-charm', 'post-series-upgrade')
 def upgrade():
+    """
+    hook for charm/series upgrade.
+
+    hook `post-series-upgrade` was added for LP: #1838529.
+    This hook will be triggered when you run `juju upgrade-series $MACHINE_ID complte`.
+    when upgrade-series from xenial to bionic, default NTP implementation will change
+    from ntpd to chrony, which means chrony must be installed.
+    In `install()`, `implementation.packages_to_install()` will figure out the right package
+    to install for each series, we just need to trigger it by removing `ntp.installed` flag.
+    """
     remove_state('ntp.installed')
     # If we're upgrading from non-reactive to reactive, the
     # nrpe layer won't automatically fire, so do it manually.
