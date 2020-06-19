@@ -1,0 +1,97 @@
+"options":
+  "nagios_context":
+    "default": "juju"
+    "type": "string"
+    "description": |
+      Used by the nrpe subordinate charms.
+      A string that will be prepended to instance name to set the host name
+      in nagios. So for instance the hostname would be something like:
+          juju-myservice-0
+      If you're running multiple environments with the same services in them
+      this allows you to differentiate between them.
+  "nagios_servicegroups":
+    "default": ""
+    "type": "string"
+    "description": |
+      A comma-separated list of nagios servicegroups.
+      If left empty, the nagios_context will be used as the servicegroup
+  "verify_ntp_servers":
+    "default": !!bool "false"
+    "type": "boolean"
+    "description": >
+      If configured to True, charm will automatically try to verify that
+      given NTP servers are accessible and raise an error, if they aren't.
+  "source":
+    "default": ""
+    "type": "string"
+    "description": >
+      Space-separated list of NTP servers to use as time sources.
+  "peers":
+    "default": ""
+    "type": "string"
+    "description": >
+      Space-separated list of NTP servers to use as peers.  Under ntpd,
+      peers are allowed to query the local NTP server via ntpq.
+  "pools":
+    "default": >
+      0.ubuntu.pool.ntp.org
+      1.ubuntu.pool.ntp.org
+      2.ubuntu.pool.ntp.org
+      3.ubuntu.pool.ntp.org
+      ntp.ubuntu.com
+    "type": "string"
+    "description": >
+      Space-separated list of NTP servers to use as pool sources. These
+      are recommended over normal sources for their self-healing
+      capabilities. Leave empty to disable pool sources.
+  "orphan_stratum":
+    "default": !!int "0"
+    "type": "int"
+    "description": >
+      The stratum at which NTP must lose connectivity to before it considers
+      itself orphaned, and starts determining the reference time with local
+      peers.  A typical value is 6, which will enable orphaned operation
+      when there are no stratum 6 servers or servers of a higher stratum
+      available, which is two strata below most Internet NTP hosts.  Set to
+      0 to disable orphan mode entirely.  You must enable at least one peer
+      in order to use orphan mode, but four or more is recommended for best
+      results.
+  "nagios_ntpmon_checks":
+    "default": "offset peers reach sync proc vars"
+    "type": "string"
+    "description": >
+      A space-separated list of nagios ntpmon checks to enable.  Default
+      is to enable all checks except trace; leave empty for no checks.
+  "auto_peers":
+    "default": !!bool "false"
+    "type": "boolean"
+    "description": >
+      DEPRECATED - please DO NOT use if you have more than approximately
+      20 units in this service.
+      Automatically select the most appropriate units in the service to
+      be a service stratum connecting with upstream NTP servers, and use
+      those units as time sources for the remaining units.
+  "auto_peers_upstream":
+    "default": !!int "6"
+    "type": "int"
+    "description": >
+      DEPRECATED - please DO NOT use if you have more than approximately
+      20 units in this service.
+      How many units should attempt to connect with upstream NTP servers?
+  "use_iburst":
+    "default": !!bool "true"
+    "type": "boolean"
+    "description": >
+      Use iburst for all peers/sources, not just those received via the
+      master relation.
+  "ntp_package":
+    "default": ""
+    "type": "string"
+    "description": >
+      If set to "ntp" the ntp package will be installed and configured, or if set
+      to
+      "chrony" the chrony package will be installed and configured. If unspecified
+      the appropriate package will be selected based on the operating system.
+      Please note that the use of ntp on Ubuntu bionic or later is not recommended
+      as it
+      does not receive security updates.

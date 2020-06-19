@@ -1,0 +1,19 @@
+site_name: 'Juju Info Interface'
+
+generate:
+  - requires.md:
+    - requires
+    - requires.JujuInfoClient+
+  - provides.md:
+    - provides
+    - provides.JujuInfoClient+
+  - peers.md:
+    - peers
+    - peers.JujuInfoClient+
+
+pages:
+  - Requires: requires.md
+  - Provides: provides.md
+  - Peers: peers.md
+
+gens_dir: docs
